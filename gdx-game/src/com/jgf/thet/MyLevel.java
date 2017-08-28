@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.*;
 
 public class MyLevel
 {
+//test
 	static private int CAVE_CNTMAX = 32;
 	
 	MyMain m_main;
