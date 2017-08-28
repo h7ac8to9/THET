@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.glutils.*;
 
 public class MyPlayer extends JgfChara
-{
+{//
 	static public final int kType_Archer = 1;
 	static public final int kType_Knight = 2;
 	static public final int kType_Mage = 3;
