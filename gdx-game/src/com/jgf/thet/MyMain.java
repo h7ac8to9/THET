@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.*;
 
 public class MyMain extends JgfMain
 {
-
+//+++
 	static public final int kState_None = 0;
 	static public final int kState_StgSel = 1;
 	static public final int kState_PlayerSel = 2;
