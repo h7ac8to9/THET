@@ -20,7 +20,7 @@ public class MyEnemy extends JgfChara
 	
 	int m_type;
 	int m_hp;
-	int m_tgt;
+	JgfChara m_tgt;
 	float m_invTimer;
 	float m_moveSpeed;
 	
@@ -55,8 +55,19 @@ public class MyEnemy extends JgfChara
 		if(m_hp <= 0) return;
 		if(getState() == kState_Outside) return;
 		
-		int playerIdx = chara.getCharaId();
-		if(MyMain.isBullet(chara)) playerIdx = chara.getOwner();
+		MyPlayer player = null;
+		if(chara instanceof MyPlayer)
+		{
+			player = (MyPlayer)chara;
+		}
+		else
+		{
+			JgfChara owner = chara.getOwner();
+			if(owner instanceof MyPlayer)
+			{
+				player = (MyPlayer)owner;
+			}
+		}
 		
 		m_hp--;
 		if(0 < m_hp)
@@ -67,7 +78,7 @@ public class MyEnemy extends JgfChara
 			{
 			case kType_Bat:
 				m_moveSpeed = 0.1f;
-				m_tgt = playerIdx;
+				m_tgt = chara;
 				break;
 			case kType_Zombie:
 				m_moveSpeed *= -1f;
@@ -92,7 +103,7 @@ public class MyEnemy extends JgfChara
 				for(int i = 0; i < bulletCnt; i++)
 				{
 					int b = m_main.getVacantBulletIdx();
-					m_main.bullets[b].setupType(playerIdx+MyMain.PLAYER_ID_RANGE, MyBullet.kType_BalBlt);
+					m_main.bullets[b].setupType(chara, MyBullet.kType_BalBlt);
 					Vector2 pos =JgfUtil.add(m_pos, JgfUtil.mul(getUpDir(), 0.1f));
 					m_main.bullets[b].setPos(pos);
 					Vector2 dir = getUpDir().rotate(360f / (float)bulletCnt * (float)i);
@@ -102,8 +113,16 @@ public class MyEnemy extends JgfChara
 				}
 				break;
 			}
-			
-			m_main.players[playerIdx].addGemCnt(1);
+			{
+				int b = m_main.getVacantBulletIdx();
+				m_main.bullets[b].setupType(chara, MyBullet.kType_Gem);
+				Vector2 pos = getCenterPos();
+				m_main.bullets[b].setPos(pos);
+			}
+			if(player != null)
+			{
+				player.addGemCnt(1);
+			}
 			m_main.level.addKillCnt();
 			dead();
 		}
@@ -244,10 +263,10 @@ public class MyEnemy extends JgfChara
 		{//まだダメージを受けていなければ近いPlayerに近づく
 			float dist1P = JgfUtil.dist(m_main.players[0], this);
 			float dist2P = JgfUtil.dist(m_main.players[1], this);
-			if(dist1P < dist2P) m_tgt = 0;
-			else m_tgt = 1;
+			if(dist1P < dist2P) m_tgt = m_main.players[0];
+			else m_tgt = m_main.players[1];
 		}
-		Vector2 linVel = JgfUtil.sub(m_main.players[m_tgt].getPos(), m_pos);
+		Vector2 linVel = JgfUtil.sub(m_tgt.getPos(), m_pos);
 		linVel.nor().scl(m_moveSpeed);
 		setLinVel(linVel);
 	}

@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.*;
 
 public class MyMain extends JgfMain
 {
-//+++
 	static public final int kState_None = 0;
 	static public final int kState_StgSel = 1;
 	static public final int kState_PlayerSel = 2;
@@ -176,33 +175,6 @@ public class MyMain extends JgfMain
 		*/
 	}
 	
-	static public boolean isBullet(JgfChara chara)
-	{
-		int bulletId = BULLET_ID_RANGE / 1000;
-		int charaId = chara.getCharaId() / 1000;
-		return(bulletId == charaId);
-	}
-	
-	static public boolean isEnemy(JgfChara chara)
-	{
-		int enemyId = ENEMY_ID_RANGE / 1000;
-		int charaId = chara.getCharaId() / 1000;
-		return(enemyId == charaId);
-	}
-	
-	static public boolean isPlayer(JgfChara chara)
-	{
-		int playerId = PLAYER_ID_RANGE / 1000;
-		int charaId = chara.getCharaId() / 1000;
-		return(playerId == charaId);
-	}
-	
-	static public boolean isProp(JgfChara chara)
-	{
-		int propId = PROP_ID_RANGE / 1000;
-		int charaId = chara.getCharaId() / 1000;
-		return(propId == charaId);
-	}
 	
 	public void setState(int state)
 	{

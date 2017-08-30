@@ -130,6 +130,7 @@ public class JgfAsset
 		loadAtlas("knife00.png");
 		loadAtlas("blt01_shield00.png");
 		loadAtlas("blt01_heal00.png");
+		loadAtlas("blt01_jem00.png");
 		
 		//man.load(".png", Texture.class);
 		

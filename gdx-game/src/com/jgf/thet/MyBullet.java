@@ -17,6 +17,7 @@ public class MyBullet extends JgfChara
 	static public final int kType_Shield = 6;
 	static public final int kType_Heal = 7;
 	static public final int kType_BalBlt = 8;
+	static public final int kType_Gem = 9;
 	
 	int m_type;
 	int m_ignore;
@@ -32,8 +33,12 @@ public class MyBullet extends JgfChara
 		
 		switch(m_type)
 		{
-			case kType_Fire:
-			m_main.players[m_owner].EndAct();
+		case kType_Fire:
+			if(m_owner instanceof MyPlayer)
+			{
+				MyPlayer player = (MyPlayer)m_owner;
+				player.EndAct();
+			}
 			break;
 		}
 	}
@@ -76,7 +81,7 @@ public class MyBullet extends JgfChara
 		m_lr = lr;
 	}
 	
-	public void setupType(int owner, int type)
+	public void setupType(JgfChara owner, int type)
 	{
 		m_type = type;
 		m_ignore = -1;
@@ -132,6 +137,13 @@ public class MyBullet extends JgfChara
 			m_sprite.setColor(Color.BLACK);
 			m_outerLen = 0.43f;
 			break;
+		case kType_Gem:
+			setup("blt01_jem00.png", kOrigin_Center, 0.05f, 0.05f);
+			m_sprite.setColor(Color.ORANGE);
+			m_outerLen = 0.5f;
+			m_lifeTimer = 0.5f;
+			m_canHit = false;
+			break;
 		}
 		m_owner = owner;
 	}
@@ -141,7 +153,6 @@ public class MyBullet extends JgfChara
 	{
 		if(!super.update()) return false;
 		
-		Vector2 ownerPos = m_main.players[m_owner].getPos();
 		switch(m_type)
 		{
 		case kType_Sword:
@@ -164,18 +175,36 @@ public class MyBullet extends JgfChara
 			}
 			break;
 		case kType_NinjaDash:
-			setPos(ownerPos);
-			setRot(m_pos.angle() + 90f);
+			if(m_owner != null)
+			{
+				Vector2 ownerPos = m_owner.getPos();
+				setPos(ownerPos);
+				setRot(m_pos.angle() + 90f);
+			}
 			break;
 		case kType_NinjaJump:
-			setPos(ownerPos);
-			setRot(m_pos.angle());
+			if(m_owner != null)
+			{
+				Vector2 ownerPos = m_owner.getPos();
+				setPos(ownerPos);
+				setRot(m_pos.angle());
+			}
 			break;
 		case kType_Shield:
-			Vector2 ofsPos = JgfUtil.mul(m_main.players[m_owner].getUpDir(), -0.03f);
-			Vector2 shieldPos = JgfUtil.add(ownerPos, ofsPos);
-			setPos(shieldPos);
-			setRot(m_pos.angle() + 90f);
+			if(m_owner != null)
+			{
+				Vector2 ownerPos = m_owner.getPos();
+				Vector2 ofsPos = JgfUtil.mul(m_owner.getUpDir(), -0.03f);
+				Vector2 shieldPos = JgfUtil.add(ownerPos, ofsPos);
+				setPos(shieldPos);
+				setRot(m_pos.angle() + 90f);
+			}
+			break;
+		case kType_Gem:
+			final float gemLifeTime = 0.5f;
+			float alpha = m_lifeTimer / gemLifeTime;
+			m_sprite.setAlpha(alpha);
+			m_sprite.setScale(2f - alpha);
 			break;
 		}
 		

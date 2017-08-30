@@ -231,7 +231,7 @@ public class MyPlayer extends JgfChara
 			switch(m_type)
 			{
 				case kType_Archer:
-				m_main.bullets[i].setupType(m_charaId, MyBullet.kType_Arrow);
+				m_main.bullets[i].setupType(this, MyBullet.kType_Arrow);
 				m_main.bullets[i].setIgnore(m_charaId);
 				pos = JgfUtil.add(m_pos, JgfUtil.mul(getUpDir(), 0.1f));
 				linVel = JgfUtil.mul(getUpDir(), m_shootSpeed);
@@ -241,7 +241,7 @@ public class MyPlayer extends JgfChara
 				m_main.bullets[i].setLR(m_lr);
 				break;
 				case kType_Knight:
-				m_main.bullets[i].setupType(m_charaId, MyBullet.kType_Sword);
+				m_main.bullets[i].setupType(this, MyBullet.kType_Sword);
 				m_main.bullets[i].setIgnore(m_charaId);
 				if(move == 0f)
 				{
@@ -270,7 +270,7 @@ public class MyPlayer extends JgfChara
 				}
 				break;
 				case kType_Mage:
-				m_main.bullets[i].setupType(m_charaId, MyBullet.kType_Fire);
+				m_main.bullets[i].setupType(this, MyBullet.kType_Fire);
 				m_main.bullets[i].setIgnore(m_charaId);
 				pos = JgfUtil.add(m_pos, JgfUtil.mul(getUpDir(), 0.15f));
 				linVel = JgfUtil.mul(getUpDir(), m_shootSpeed);
@@ -292,7 +292,7 @@ public class MyPlayer extends JgfChara
 					m_act = kAct_NinjaDash;
 					m_actTimer = 0.15f;
 					m_invTimer = m_actTimer;
-					m_main.bullets[i].setupType(m_charaId, MyBullet.kType_NinjaDash);
+					m_main.bullets[i].setupType(this, MyBullet.kType_NinjaDash);
 					m_main.bullets[i].setIgnore(m_charaId);
 					m_main.bullets[i].setLR(m_lr);
 					//m_main.log.print("ninja");
@@ -324,7 +324,7 @@ public class MyPlayer extends JgfChara
 							int bltIdx = m_main.getVacantBulletIdx();
 							linVel.rotate(+15f);
 							rot += 15f;
-							m_main.bullets[bltIdx].setupType(m_charaId, MyBullet.kType_Arrow);
+							m_main.bullets[bltIdx].setupType(this, MyBullet.kType_Arrow);
 							m_main.bullets[bltIdx].setIgnore(m_charaId);
 							m_main.bullets[bltIdx].setPos(pos);
 							m_main.bullets[bltIdx].setLinVel(linVel);
@@ -337,7 +337,7 @@ public class MyPlayer extends JgfChara
 					{
 						m_invTimer = 3f;
 						int bltIdx = m_main.getVacantBulletIdx();
-						m_main.bullets[bltIdx].setupType(m_charaId, MyBullet.kType_Shield);
+						m_main.bullets[bltIdx].setupType(this, MyBullet.kType_Shield);
 						m_main.bullets[bltIdx].setIgnore(m_charaId);
 						m_main.bullets[bltIdx].setLR(m_lr);
 					}
@@ -347,7 +347,7 @@ public class MyPlayer extends JgfChara
 						m_act = kAct_None; //アクションキャンセル
 						Vector2 pos = JgfUtil.add(m_pos, JgfUtil.mul(getUpDir(), 0.15f));
 						int bltIdx = m_main.getVacantBulletIdx();
-						m_main.bullets[bltIdx].setupType(m_charaId, MyBullet.kType_Heal);
+						m_main.bullets[bltIdx].setupType(this, MyBullet.kType_Heal);
 						m_main.bullets[bltIdx].setIgnore(m_charaId);
 						m_main.bullets[bltIdx].setPos(pos);
 						m_main.bullets[bltIdx].setRot(m_rot);
@@ -372,7 +372,7 @@ public class MyPlayer extends JgfChara
 						linVel.nor().scl(3f);
 						setLinVel(linVel);
 						int bltIdx = m_main.getVacantBulletIdx();
-						m_main.bullets[bltIdx].setupType(m_charaId, MyBullet.kType_NinjaJump);
+						m_main.bullets[bltIdx].setupType(this, MyBullet.kType_NinjaJump);
 						m_main.bullets[bltIdx].setIgnore(m_charaId);
 						m_main.bullets[bltIdx].setLR(m_lr);
 					}

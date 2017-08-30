@@ -14,7 +14,7 @@ public class JgfChara
 	
 	MyMain m_main;
 	int m_charaId;
-	int m_owner;
+	JgfChara m_owner;
 	JgfAtlas m_atlas;
 	Sprite m_sprite;
 	ShapeRenderer m_shape;
@@ -105,7 +105,7 @@ public class JgfChara
 		return m_linVel;
 	}
 	
-	public int getOwner()
+	public JgfChara getOwner()
 	{
 		return m_owner;
 	}
@@ -151,7 +151,7 @@ public class JgfChara
 	{
 		m_main = MyGame.getMain();
 		m_charaId = charaId;
-		m_owner = -1;
+		m_owner = null;
 		m_isAlive = false;
 		m_shape = new ShapeRenderer();
 		m_pos = new Vector2();
