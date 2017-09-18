@@ -164,9 +164,6 @@ public class MyMain extends JgfMain
 		
 		//テスト
 		/*
-		FileHandle file = Gdx.files.internal("test.csv");
-		String text = file.readString();
-		log.print(text);
 		Preferences prefs = Gdx.app.getPreferences("TestPrefs");
 		//prefs.putString("name", "Ninja");
 		//prefs.flush();
@@ -185,12 +182,19 @@ public class MyMain extends JgfMain
 		switch(m_state)
 		{
 		case kState_PlayerSel:
+			m_music = asset.getMsc("BGM068-090923-yorutokoorinomura-mp3.mp3");
+			m_music.play();
+			m_music.setLooping(true);
 			level.setStg(0);
 			break;
 		case kState_Ready:
-			m_music = asset.getMsc("music01.mp3");
+			m_music.stop();
+			m_music = asset.getMsc(level.getBgmName());
 			m_music.play();
 			m_music.setLooping(true);
+			break;
+		case kState_Interval:
+			m_music.stop();
 			break;
 		case kState_Result:
 			m_music.stop();
@@ -216,31 +220,52 @@ public class MyMain extends JgfMain
 		case kState_GameOver: updateGameOver(); break;
 		case kState_Shop: updateShop(); break;
 		}
+		bg.update();
 		ui.update();
 	}
 	
 	private void updatePlayerSel()
 	{
+		switch(stateStep)
+		{
+		case 0:
+			bg.setState(MyBg.kState_PlanetOut);
+			stateStep++;
+			break;
+		}
 	}
 	
 	private void updateReady()
 	{
-		if(3f < stateTimer)
+		switch(stateStep)
 		{
-			setState(kState_Play);
-			return;
-		}
-		
-		for(int i = 0; i < PLAYER_CNTMAX; i++)
-		{
-			players[i].update();
+		case 0:
+			bg.setState(MyBg.kState_PlanetIn);
+			stateStep++;
+			break;
+		case 1:
+			if(3f < stateTimer)
+			{
+				setState(kState_Play);
+				return;
+			}
+			for(int i = 0; i < PLAYER_CNTMAX; i++)
+			{
+				players[i].update();
+			}
+			break;
 		}
 	}
 	
-	private void updatePlay()
+	void updatePlay()
 	{
 		level.update();
-
+		
+		updatePlayCmn();
+	}
+	
+	private void updatePlayCmn()
+	{
 		for(int i = 0; i < PLAYER_CNTMAX; i++)
 		{
 			if(players[i].isInv()) continue;
@@ -312,6 +337,7 @@ public class MyMain extends JgfMain
 	
 	private void updateInterval()
 	{
+		updatePlayCmn();
 		if(2f < stateTimer)
 		{
 			setState(kState_Shop);
@@ -320,7 +346,8 @@ public class MyMain extends JgfMain
 	
 	private void updateResult()
 	{
-		if(level.isEndingStg())
+		updatePlayCmn();
+		if(level.isEndStg())
 		{
 			if(8f < stateTimer)
 			{
@@ -346,6 +373,7 @@ public class MyMain extends JgfMain
 	
 	private void updateShop()
 	{
+		updatePlayCmn();
 	}
 }
 

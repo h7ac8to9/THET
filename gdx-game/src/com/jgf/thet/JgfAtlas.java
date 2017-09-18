@@ -81,9 +81,10 @@ public class JgfAtlas
 		m_frames = new Array<TextureRegion>();
 		float u = 1f / (float)m_row;
 		float v = 1f / (float)m_col;
-		for(int r = 0; r < m_row; r++)
+		
+		for(int c = m_col - 1; 0 <= c; c--)
 		{
-			for(int c = 0; c < m_col; c++)
+			for(int r = 0; r < m_row; r++)
 			{
 				TextureRegion region = new TextureRegion();
 				region.setTexture(m_tex);

@@ -63,9 +63,13 @@ public class MyEnemy extends JgfChara
 		else
 		{
 			JgfChara owner = chara.getOwner();
-			if(owner instanceof MyPlayer)
+			while(owner != null)
 			{
-				player = (MyPlayer)owner;
+				if(owner instanceof MyPlayer)
+				{
+					player = (MyPlayer)owner;
+				}
+				owner = owner.getOwner();
 			}
 		}
 		
@@ -78,7 +82,7 @@ public class MyEnemy extends JgfChara
 			{
 			case kType_Bat:
 				m_moveSpeed = 0.1f;
-				m_tgt = chara;
+				m_tgt = player;
 				break;
 			case kType_Zombie:
 				m_moveSpeed *= -1f;
@@ -228,27 +232,13 @@ public class MyEnemy extends JgfChara
 			m_stateStep++;
 			m_stateTimer = 0f;
 			JgfUtil.set(m_tmpPos, m_pos);
+			Vector2 linVel = JgfUtil.mul(m_pos, -1f);
+			linVel.rotate((float)MathUtils.random(-90f, +90f));
+			linVel.nor().scl(0.4f);
+			setLinVel(linVel);
+			m_comeInTime = 0.1f + 0.2f * (float)Math.random();
 			break;
 		case 1:
-			final float preTime = 1.5f;
-			//if(preTime < m_stateTimer)
-			if(true)
-			{
-				m_stateStep++;
-				m_stateTimer = 0f;
-				Vector2 linVel = JgfUtil.mul(m_pos, -1f);
-				linVel.nor().scl(0.4f);
-				setLinVel(linVel);
-				m_comeInTime = 0.4f + 0.7f * (float)Math.random();
-			}
-			else
-			{
-				m_pos.x = m_tmpPos.x + 0.02f * (float)Math.sin(m_stateTimer * Math.PI * 2f / preTime);
-				m_pos.y = m_tmpPos.y + 0.01f * (float)Math.sin(m_stateTimer * Math.PI * 4f / preTime);
-				setPos(m_pos);
-			}
-			break;
-		case 2:
 			if(m_comeInTime < m_stateTimer)
 			{
 				setState(kState_Inside);
@@ -259,14 +249,14 @@ public class MyEnemy extends JgfChara
 	
 	private void updateBatInside()
 	{
-		if(m_hp == 2)
+		if(m_hp == 2 || m_tgt == null)
 		{//まだダメージを受けていなければ近いPlayerに近づく
 			float dist1P = JgfUtil.dist(m_main.players[0], this);
 			float dist2P = JgfUtil.dist(m_main.players[1], this);
 			if(dist1P < dist2P) m_tgt = m_main.players[0];
 			else m_tgt = m_main.players[1];
 		}
-		Vector2 linVel = JgfUtil.sub(m_tgt.getPos(), m_pos);
+		Vector2 linVel = JgfUtil.sub(m_tgt.getCenterPos(), m_pos);
 		linVel.nor().scl(m_moveSpeed);
 		setLinVel(linVel);
 	}

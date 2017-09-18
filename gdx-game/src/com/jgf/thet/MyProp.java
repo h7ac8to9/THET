@@ -1,6 +1,7 @@
 package com.jgf.thet;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.graphics.g2d.*;
 
 public class MyProp extends JgfChara
 {
@@ -20,6 +21,25 @@ public class MyProp extends JgfChara
 		super(charaId);
 	}
 
+	@Override
+	public boolean draw(SpriteBatch batch)
+	{
+		switch(m_main.getState())
+		{
+		case MyMain.kState_Ready:
+		case MyMain.kState_Play:
+			break;
+		default:
+			return false;
+		}
+		
+		if(!super.draw(batch)) return false;
+		
+		return true;
+	}
+
+	
+	
 	public void setSpawnType(int type)
 	{
 		m_spawnType = type;
@@ -96,6 +116,10 @@ public class MyProp extends JgfChara
 			
 			int i = m_main.getVacantEnemyIdx();
 			Vector2 pos = m_pos.cpy();
+			if(m_type == kType_CaveHigh)
+			{
+				pos = getCenterPos();
+			}
 			m_main.enemies[i].setupType(m_spawnType);
 			m_main.enemies[i].setPos(pos);
 			m_main.enemies[i].setComeInTime(0f);

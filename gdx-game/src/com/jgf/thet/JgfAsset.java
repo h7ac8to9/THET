@@ -15,7 +15,8 @@ public class JgfAsset
 {
 	MyMain m_main;
 	public AssetManager man;
-	private HashMap<String, JgfAtlas> m_atlases;
+	HashMap<String, JgfAtlas> m_atlases;
+	HashMap<String, JgfTbl> m_tbls;
 	
 	public void dispose()
 	{
@@ -54,6 +55,11 @@ public class JgfAsset
 		return man.get(name);
 	}
 	
+	public JgfTbl getTbl(String name)
+	{
+		return m_tbls.get(name);
+	}
+	
 	public Texture getTex(String name)
 	{
 		return man.get(name);
@@ -61,78 +67,75 @@ public class JgfAsset
 	
 	public JgfAsset()
 	{
-		m_main = JgfGame.getMain();
+		m_main = MyGame.getMain();
 		man = new AssetManager();
 		m_atlases = new HashMap<String, JgfAtlas>();
+		m_tbls = new HashMap<String, JgfTbl>();
 	}
 	
 	public void load()
 	{
-		//JgfLog
-		loadFnt("verdana39.fnt");
-		
-		//BGM
-		loadMsc("music01.mp3");
-		
-		//MyUi
-		loadBdl("bdl");
-		loadTex("btn00.png");
-		loadTex("heart00.png");
-		loadTex("icon00_jem00.png");
-		loadTex("icon00_gloves00.png");
-		loadTex("icon00_boots00.png");
-		loadTex("ok00.png");
-		loadTex("archer01.png");
-		loadTex("knight01.png");
-		loadTex("mage01.png");
-		loadTex("ninja01.png");
-		loadTex("btn00_move00.png");
-		loadTex("btn00_skills00.png");
-		loadTex("btn00_skillf00.png");
-		loadTex("btn00_skillm00.png");
-		loadTex("btn00_skilln00.png");
-		loadTex("btn03_heart00.png");
-		loadTex("btn03_gloves00.png");
-		loadTex("btn03_boots00.png");
-		loadTex("btn03_skills00.png");
-		loadTex("btn03_skillf00.png");
-		loadTex("btn03_skillm00.png");
-		loadTex("btn03_skilln00.png");
-		
-		//BG
-		loadTex("planet01.png");
-		
-		//Level
-		loadAtlas("cave00.png", 2, 2, 0.15f, Animation.PlayMode.LOOP);
-		loadAtlas("cave01.png", 4, 4, 0.15f, Animation.PlayMode.NORMAL);
-		
-		//MyPlayer
-		loadAtlas("archer02.png", 2, 1, 0.2f, Animation.PlayMode.LOOP);
-		loadAtlas("gunman00walk00.png", 2, 2, 0.1f, Animation.PlayMode.LOOP);
-		loadAtlas("knight02.png", 2, 1, 0.2f, Animation.PlayMode.LOOP);
-		loadAtlas("knight00walk00.png", 2, 2, 0.15f, Animation.PlayMode.LOOP);
-		loadAtlas("mage02.png", 2, 1, 0.2f, Animation.PlayMode.LOOP);
-		loadAtlas("mage00walk00.png", 2, 2, 0.1f, Animation.PlayMode.LOOP);
-		loadAtlas("ninja02.png", 2, 1, 0.2f, Animation.PlayMode.LOOP);
-		loadAtlas("ninja00walk00.png", 2, 2, 0.06f, Animation.PlayMode.LOOP);
-		loadSnd("dmg00.mp3");
-		
-		//MyEnemy
-		loadAtlas("bat00.png");
-		loadAtlas("bat01.png", 2, 2, 0.15f, Animation.PlayMode.LOOP);
-		loadAtlas("zombie00.png");
-		loadAtlas("balloon00.png");
-		
-		//MyBullet
-		loadAtlas("arrow00.png");
-		loadAtlas("sword00.png");
-		loadAtlas("fire00.png");
-		loadAtlas("knife00.png");
-		loadAtlas("blt01_shield00.png");
-		loadAtlas("blt01_heal00.png");
-		loadAtlas("blt01_jem00.png");
-		
-		//man.load(".png", Texture.class);
+		JgfTbl assetTbl = new JgfTbl();
+		assetTbl.setupCsv("tbl00_asset00.csv", false, true);
+		for(int r = 0; r < assetTbl.getRowCnt(); r++)
+		{
+			String type = assetTbl.getCellS(r, "type");
+			String filepath = assetTbl.getCellS(r, "filepath");
+			String arg0 = assetTbl.getCellS(r, "arg0");
+			String arg1 = assetTbl.getCellS(r, "arg1");
+			String arg2 = assetTbl.getCellS(r, "arg2");
+			String arg3 = assetTbl.getCellS(r, "arg3");
+			switch(type)
+			{
+			case "atlas":
+				int row = 1;
+				if(0 < arg0.length()) row = Integer.valueOf(arg0);
+				int col = 1;
+				if(0 < arg1.length()) col = Integer.valueOf(arg1);
+				float duration = 0f;
+				if(0 < arg2.length()) duration = Float.valueOf(arg2);
+				switch(arg3)
+				{
+				case "LOOP":
+					if(filepath.equals("gunman00walk00.png"))
+					{
+						loadAtlas(filepath, 2, 2, 0.1f, Animation.PlayMode.LOOP);
+					}
+					else
+					{
+						loadAtlas(filepath, row, col, duration, Animation.PlayMode.LOOP);
+					}
+					break;
+				case "NORMAL":
+					loadAtlas(filepath, row, col, duration, Animation.PlayMode.NORMAL);
+					break;
+				default:
+					loadAtlas(filepath);
+					break;
+				}
+				break;
+			case "bdl":
+				loadBdl(filepath);
+				break;
+			case "csv":
+				boolean useKey = arg0.equals("true");
+				boolean useLabel = arg1.equals("true");
+				loadCsv(filepath, useKey, useLabel);
+				break;
+			case "fnt":
+				loadFnt(filepath);
+				break;
+			case "msc":
+				loadMsc(filepath);
+				break;
+			case "snd":
+				loadSnd(filepath);
+				break;
+			case "tex":
+				loadTex(filepath);
+				break;
+			}
+		}
 		
 		//TODO: そのうち非同期読み込みするとき消す
 		man.finishLoading();
@@ -182,6 +185,13 @@ public class JgfAsset
 	public void loadTex(String name)
 	{
 		man.load(name, Texture.class);
+	}
+	
+	public void loadCsv(String name, boolean useKey, boolean useLabel)
+	{
+		JgfTbl tbl = new JgfTbl();
+		tbl.setupCsv(name, useKey, useLabel);
+		m_tbls.put(name, tbl);
 	}
 	
 	public void update()

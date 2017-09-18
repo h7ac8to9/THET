@@ -8,20 +8,26 @@ import com.badlogic.gdx.graphics.glutils.*;
 
 public class MyLevel
 {
-//test
-	static private int CAVE_CNTMAX = 32;
+	static public int STG_CNTMAX = 6;
+	static int CAVE_CNTMAX = 32;
 	
 	MyMain m_main;
 	
 	MyStg m_stg; //外部ファイルのコンテナ
-	int m_roundNum; //現在のラウンド番号
-	boolean m_isEndingStg; //全てのラウンドが終わったらtrue
+	int m_stgIdx; //現在のステージ番号
+	int m_roundIdx; //現在のラウンド番号
+	int m_squadIdx; //現在のスカッド番号
+	boolean m_isEndStg; //全てのラウンドが終わったらtrue
+	String m_inTexName;
+	String m_outTexName;
+	String m_bgmName;
 	
 	//----ラウンド毎----
 	float m_playingTime; //プレイ秒
 	int m_killCnt; //倒した敵の総数
 	float m_spawnTimer; //次の敵出現までの秒数
-	float m_spawnCnt; //出現した敵の総数
+	int m_roundSpawnCnt; //出現した敵の総数
+	int m_squadSpawnCnt;
 	MyProp[] m_highCaves; //高い洞窟たち
 	MyProp[] m_lowCaves; //低い洞窟たち
 	int m_highCaveCnt; //高い洞窟の配置数
@@ -32,9 +38,14 @@ public class MyLevel
 		m_killCnt++;
 	}
 	
+	public void addStg(int add)
+	{
+		setStg(m_stgIdx + add);
+	}
+	
 	private void clear()
 	{
-		m_isEndingStg = false;
+		m_isEndStg = false;
 		for(int i = 0; i < MyMain.PLAYER_CNTMAX; i++)
 		{
 			m_main.players[i].dead();
@@ -63,6 +74,21 @@ public class MyLevel
 		}
 	}
 	
+	public String getBgmName()
+	{
+		return m_bgmName;
+	}
+	
+	public String getInTexName()
+	{
+		return m_inTexName;
+	}
+	
+	public String getOutTexName()
+	{
+		return m_outTexName;
+	}
+	
 	public float getPlayingTime()
 	{
 		return m_playingTime;
@@ -70,12 +96,13 @@ public class MyLevel
 	
 	public int getPrice(int item)
 	{
-		return m_stg.rounds[m_roundNum].getPrice(item);
+		return m_stg.rounds[m_roundIdx].getPrice(item);
 	}
 	
+	//現在のRoundを取得する.
 	private MyRound getRound()
 	{
-		return m_stg.rounds[m_roundNum];
+		return m_stg.rounds[m_roundIdx];
 	}
 	
 	public int getRoundMax()
@@ -83,14 +110,25 @@ public class MyLevel
 		return m_stg.roundCnt;
 	}
 	
-	public int getRoundNum()
+	public int getRoundIdx()
 	{
-		return m_roundNum;
+		return m_roundIdx;
 	}
 	
-	public boolean isEndingStg()
+	//現在のSquadを取得する.
+	private MySquad getSquad()
 	{
-		return m_isEndingStg;
+		return m_stg.rounds[m_roundIdx].squads[m_squadIdx];
+	}
+	
+	public int getStgIdx()
+	{
+		return m_stgIdx;
+	}
+	
+	public boolean isEndStg()
+	{
+		return m_isEndStg;
 	}
 	
 	public MyLevel()
@@ -103,14 +141,14 @@ public class MyLevel
 	
 	public boolean nextRound()
 	{
-		int roundIdx = m_roundNum + 1;
+		int roundIdx = m_roundIdx + 1;
 		if(roundIdx < m_stg.roundCnt)
 		{//まだラウンドがある
 			setRound(roundIdx);
 			return true;
 		}
 		//もうラウンドない
-		m_isEndingStg = true;
+		m_isEndStg = true;
 		return false;
 	}
 	
@@ -118,11 +156,13 @@ public class MyLevel
 	{
 		clearBullets();
 		clearProps();
-		m_roundNum = roundIdx;
+		m_roundIdx = roundIdx;
+		m_squadIdx = 0;
 		m_playingTime = 0f;
 		m_killCnt = 0;
 		m_spawnTimer = 0f;
-		m_spawnCnt = 0;
+		m_roundSpawnCnt = 0;
+		m_squadSpawnCnt = 0;
 		setupHighCaves();
 		setupLowCaves();
 	}
@@ -130,7 +170,12 @@ public class MyLevel
 	public void setStg(int stgIdx)
 	{
 		clear();
-		m_stg.setup();
+		m_stg.setup(stgIdx);
+		
+		if(stgIdx < 0) stgIdx = 0;
+		if(STG_CNTMAX <= stgIdx) stgIdx = STG_CNTMAX - 1;
+		m_stgIdx = stgIdx;
+		
 		setRound(0);
 	}
 	
@@ -169,30 +214,43 @@ public class MyLevel
 		float deltaTime = Gdx.graphics.getDeltaTime();
 		m_playingTime += deltaTime;
 		int spawnCntMax = getRound().getSpawnCntMax();
-		if(m_spawnCnt < spawnCntMax)
+		if(m_roundSpawnCnt < spawnCntMax)
 		{
 			m_spawnTimer -= deltaTime;
-			if(m_spawnTimer < 0f)
+			int enemyCnt = m_roundSpawnCnt - m_killCnt;
+			if(enemyCnt < getSquad().getSpawnLimit())
 			{
-				m_spawnTimer = 3f - 0.1f * m_spawnCnt;
-				m_spawnTimer = Math.max(m_spawnTimer, 1f);
-				m_spawnCnt++;
-			
-				MyPtrn ptrn = getRound().lotPtrn();
-				int type = ptrn.enemy;
-				boolean isHigh = (ptrn.address == MyStg.kAddress_HighCave);
-			
-				if(isHigh)
-				{
-					int caveIdx = MathUtils.random(0, m_highCaveCnt - 1);
-					m_highCaves[caveIdx].setState(MyProp.kState_Act);
-					spawnEnemy(type, isHigh, caveIdx);
-				}
-				else
-				{
-					int caveIdx = MathUtils.random(0, m_lowCaveCnt - 1);
-					m_lowCaves[caveIdx].setState(MyProp.kState_Act);
-					spawnEnemy(type, isHigh, caveIdx);
+				if(m_spawnTimer < 0f || enemyCnt <= 0)
+				{//スポーン時間経過 or 敵数ゼロ
+					//敵スポーン
+					MyPtrn ptrn = getSquad().lotPtrn();
+					int type = ptrn.enemy;
+					boolean isHigh = (ptrn.address == MyStg.kAddress_HighCave);
+					if(isHigh)
+					{
+						int caveIdx = MathUtils.random(0, m_highCaveCnt - 1);
+						m_highCaves[caveIdx].setState(MyProp.kState_Act);
+						spawnEnemy(type, isHigh, caveIdx);
+					}
+					else
+					{
+						int caveIdx = MathUtils.random(0, m_lowCaveCnt - 1);
+						m_lowCaves[caveIdx].setState(MyProp.kState_Act);
+						spawnEnemy(type, isHigh, caveIdx);
+					}
+					m_squadSpawnCnt++;
+					m_roundSpawnCnt++;
+					if(getSquad().getSpawnCnt() <= m_squadSpawnCnt)
+					{//現在のスカッドをスポーンし終えた
+						if(m_squadIdx < getRound().squadCnt - 1)
+						{//現在のスカッドが最終スカッドでなければ
+							m_squadIdx++;
+						}
+					}
+					float base = getSquad().getSpawnTimeBase();
+					float add = getSquad().getSpawnTimeAdd();
+					m_spawnTimer = base + add * m_squadSpawnCnt;
+					m_spawnTimer = Math.max(m_spawnTimer, 0.2f);
 				}
 			}
 		}
@@ -264,7 +322,6 @@ public class MyLevel
 		public int lowCaveCnt;
 		public MyLayout[] highCaveLayouts;
 		public MyLayout[] lowCaveLayouts;
-		
 		public MyRound[] rounds;
 		public int roundCnt;
 		
@@ -308,68 +365,133 @@ public class MyLevel
 			roundCnt = 0;
 		}
 		
-		public void setup()
+		public void setup(int stgIdx)
 		{
 			clear();
 			
-			highCaveLayouts[0].set(32f, 0.23f);
-			highCaveLayouts[1].set(75f, 0.2f);
-			highCaveLayouts[2].set(202f, 0.24f);
-			highCaveLayouts[3].set(282f, 0.26f);
-			highCaveLayouts[4].set(310f, 0.32f);
-			highCaveLayouts[5].set(340f, 0.28f);
-			highCaveCnt = 6;
+			String tblName ="";
+			switch(stgIdx)
+			{
+			case 1: tblName = "tbl01_stg01.csv"; break;
+			case 2: tblName = "tbl01_stg02.csv"; break;
+			case 3: tblName = "tbl01_stg03.csv"; break;
+			case 4: tblName = "tbl01_stg04.csv"; break;
+			case 5: tblName = "tbl01_stg05.csv"; break;
+			default: tblName = "tbl01_stg00.csv"; break;
+			}
+			JgfTbl tbl = m_main.asset.getTbl(tblName);
 			
-			lowCaveLayouts[0].set(8f, 0.45f);
-			lowCaveLayouts[1].set(38f, 0.45f);
-			lowCaveLayouts[2].set(75f, 0.45f);
-			lowCaveLayouts[3].set(95f, 0.45f);
-			lowCaveLayouts[4].set(122f, 0.45f);
-			lowCaveLayouts[5].set(135f, 0.45f);
-			lowCaveLayouts[6].set(153f, 0.45f);
-			lowCaveLayouts[7].set(167f, 0.45f);
-			lowCaveLayouts[8].set(198f, 0.45f);
-			lowCaveLayouts[9].set(225f, 0.45f);
-			lowCaveLayouts[10].set(248f, 0.45f);
-			lowCaveLayouts[11].set(269f, 0.45f);
-			lowCaveLayouts[12].set(279f, 0.45f);
-			lowCaveLayouts[13].set(296f, 0.45f);
-			lowCaveLayouts[14].set(310f, 0.45f);
-			lowCaveLayouts[15].set(323f, 0.45f);
-			lowCaveLayouts[16].set(336f, 0.45f);
-			lowCaveLayouts[17].set(346f, 0.45f);
-			lowCaveCnt = 18;
+			roundCnt = -1;
+			highCaveCnt = 0;
+			lowCaveCnt = 0;
+			int squadCnt = 0;
 			
-			rounds[0].setHighCavePick(2);
-			rounds[0].setLowCavePick(3);
-			rounds[0].setSpawnCntMax(2);
-			rounds[0].setPrices(0, 0, 0, 0);
-			rounds[0].addPtrn(MyEnemy.kType_Bat, kAddress_HighCave, 1f);
-			rounds[0].addPtrn(MyEnemy.kType_Zombie, kAddress_LowCave, 0.3f);
-			rounds[0].addPtrn(MyEnemy.kType_Balloon, kAddress_LowCave, 0.2f);
-			
-			rounds[1].setHighCavePick(2);
-			rounds[1].setLowCavePick(3);
-			rounds[1].setSpawnCntMax(2);
-			rounds[1].setPrices(8, 1, 1, 1);
-			rounds[1].addPtrn(MyEnemy.kType_Bat, kAddress_HighCave, 1f);
-			rounds[1].addPtrn(MyEnemy.kType_Zombie, kAddress_LowCave, 0.3f);
-			rounds[1].addPtrn(MyEnemy.kType_Balloon, kAddress_LowCave, 0.2f);
-			
-			roundCnt = 2;
+			for(int r = 0; r < tbl.getRowCnt(); r++)
+			{
+				String cmd = tbl.getCellS(r, "cmd");
+				String arg0 = tbl.getCellS(r, "arg0");
+				String arg1 = tbl.getCellS(r, "arg1");
+				String arg2 = tbl.getCellS(r, "arg2");
+				String arg3 = tbl.getCellS(r, "arg3");
+				if(roundCnt < 0)
+				{
+					switch(cmd)
+					{
+					case "bgm":
+						m_bgmName = arg0;
+						break;
+					case "high":
+						float angle = Float.valueOf(arg0);
+						float dist = Float.valueOf(arg1);
+						highCaveLayouts[highCaveCnt].set(angle, dist);
+						highCaveCnt++;
+						break;
+					case "in":
+						m_inTexName = arg0;
+						break;
+					case "low":
+						angle = Float.valueOf(arg0);
+						dist = Float.valueOf(arg1);
+						lowCaveLayouts[lowCaveCnt].set(angle, dist);
+						lowCaveCnt++;
+						break;
+					case "out":
+						m_outTexName = arg0;
+						break;
+					case "round":
+						roundCnt++;
+						squadCnt = 0;
+						break;
+					}
+				}
+				else
+				{
+					switch(cmd)
+					{
+					case "high":
+						int pick = Integer.valueOf(arg0);
+						rounds[roundCnt].setHighCavePick(pick);
+						break;
+					case "low":
+						pick = Integer.valueOf(arg0);
+						rounds[roundCnt].setLowCavePick(pick);
+						break;
+					case "prices":
+						int heart = Integer.valueOf(arg0);
+						int gloves = Integer.valueOf(arg1);
+						int boots = Integer.valueOf(arg2);
+						int skill = Integer.valueOf(arg3);
+						rounds[roundCnt].setPrices(heart, gloves, boots, skill);
+						break;
+					case "ptrn":
+						int enemy = MyEnemy.kType_None;
+						switch(arg0)
+						{
+						case "balloon": enemy = MyEnemy.kType_Balloon; break;
+						case "bat": enemy = MyEnemy.kType_Bat; break;
+						case "zombie": enemy = MyEnemy.kType_Zombie; break;
+						}
+						int address = kAddress_None;
+						switch(arg1)
+						{
+						case "high": address = kAddress_HighCave; break;
+						case "low": address = kAddress_LowCave; break;
+						}
+						float prob = Float.valueOf(arg2);
+						rounds[roundCnt].squads[squadCnt-1].addPtrn(enemy, address, prob);
+						break;
+					case "round":
+						roundCnt++;
+						squadCnt = 0;
+						break;
+					case "squad":
+						int spawnCnt = Integer.valueOf(arg0);
+						int spawnLimit = Integer.valueOf(arg1);
+						float spawnTimeBase = Float.valueOf(arg2);
+						float spawnTimeAdd = Float.valueOf(arg3);
+						rounds[roundCnt].addSpawnCntMax(spawnCnt);
+						rounds[roundCnt].addSquadCnt(1);
+						rounds[roundCnt].squads[squadCnt].setSpawnCnt(spawnCnt, spawnLimit);
+						rounds[roundCnt].squads[squadCnt].setSpawnTime(spawnTimeBase, spawnTimeAdd);
+						squadCnt++;
+						break;
+					}
+				}
+			}
+			roundCnt++;
 		}
 	}
 	
 	private class MyRound
 	{
-		static final int PTRN_CNTMAX = 8;
+		static final int SQUAD_CNTMAX = 8;
 		static final int ITEM_CNTMAX = 4;
 		
 		int m_highCavePick;
 		int m_lowCavePick;
 		int m_spawnCntMax;
-		int m_ptrnCnt;
-		MyPtrn[] m_ptrns;
+		public MySquad[] squads;
+		public int squadCnt;
 		int[] m_prices;
 		
 		public MyRound()
@@ -377,22 +499,23 @@ public class MyLevel
 			m_highCavePick = 0;
 			m_lowCavePick = 0;
 			m_spawnCntMax = 0;
-			m_ptrnCnt = 0;
-			m_ptrns = new MyPtrn[PTRN_CNTMAX];
-			for(int i = 0; i < PTRN_CNTMAX; i++)
-			{
-				m_ptrns[i] = new MyPtrn();
-			}
 			m_prices = new int[ITEM_CNTMAX];
+			squads = new MySquad[SQUAD_CNTMAX];
+			for(int i = 0; i < SQUAD_CNTMAX; i++)
+			{
+				squads[i] = new MySquad();
+			}
 			clear();
 		}
 		
-		public void addPtrn(int enemy, int address, float prob)
+		public void addSpawnCntMax(int add)
 		{
-			m_ptrns[m_ptrnCnt].enemy = enemy;
-			m_ptrns[m_ptrnCnt].address = address;
-			m_ptrns[m_ptrnCnt].prob = prob;
-			m_ptrnCnt++;
+			m_spawnCntMax += add;
+		}
+		
+		public void addSquadCnt(int add)
+		{
+			squadCnt += add;
 		}
 		
 		public void clear()
@@ -400,14 +523,13 @@ public class MyLevel
 			m_highCavePick = 0;
 			m_lowCavePick = 0;
 			m_spawnCntMax = 0;
-			for(int i = 0; i < m_ptrnCnt; i++)
-			{
-				m_ptrns[i].clear();
-			}
-			m_ptrnCnt = 0;
 			for(int i = 0; i < ITEM_CNTMAX; i++)
 			{
 				m_prices[i] = 0;
+			}
+			for(int i = 0; i < SQUAD_CNTMAX; i++)
+			{
+				squads[i].clear();
 			}
 		}
 		
@@ -431,31 +553,6 @@ public class MyLevel
 			return m_spawnCntMax;
 		}
 		
-		//パターンを抽選する
-		public MyPtrn lotPtrn()
-		{
-			float sumProb = 0f;
-			for(int i = 0; i < m_ptrnCnt; i++)
-			{
-				sumProb += m_ptrns[i].prob;
-			}
-			float prob = MathUtils.random(0f, sumProb);
-			float prevProb = 0f;
-			float curProb = 0f;
-			
-			for(int i = 0; i < m_ptrnCnt - 1; i++)
-			{
-				prevProb = curProb;
-				curProb += m_ptrns[i].prob;
-				if(prevProb <= prob && prob < curProb)
-				{
-					return m_ptrns[i];
-				}
-			}
-			
-			return m_ptrns[m_ptrnCnt - 1];
-		}
-		
 		void setHighCavePick(int highCavePick)
 		{
 			m_highCavePick = highCavePick;
@@ -464,11 +561,6 @@ public class MyLevel
 		void setLowCavePick(int lowCavePick)
 		{
 			m_lowCavePick = lowCavePick;
-		}
-		
-		void setSpawnCntMax(int spawnCntMax)
-		{
-			m_spawnCntMax = spawnCntMax;
 		}
 		
 		void setPrices(int price0, int price1, int price2, int price3)
@@ -480,7 +572,105 @@ public class MyLevel
 		}
 	}
 	
-	private class MyPtrn
+	class MySquad
+	{
+		static final int PTRN_CNTMAX = 4;
+		
+		int m_ptrnCnt;
+		MyPtrn[] m_ptrns;
+		int m_spawnCnt;
+		int m_spawnLimit;
+		float m_spawnTimeBase;
+		float m_spawnTimeAdd;
+		
+		public MySquad()
+		{
+			m_ptrnCnt = 0;
+			m_ptrns = new MyPtrn[PTRN_CNTMAX];
+			for(int i = 0; i < PTRN_CNTMAX; i++)
+			{
+				m_ptrns[i] = new MyPtrn();
+			}
+		}
+		
+		public void addPtrn(int enemy, int address, float prob)
+		{
+			m_ptrns[m_ptrnCnt].enemy = enemy;
+			m_ptrns[m_ptrnCnt].address = address;
+			m_ptrns[m_ptrnCnt].prob = prob;
+			m_ptrnCnt++;
+		}
+		
+		public void clear()
+		{
+			for(int i = 0; i < m_ptrnCnt; i++)
+			{
+				m_ptrns[i].clear();
+			}
+			m_ptrnCnt = 0;
+			m_spawnCnt = 0;
+			m_spawnLimit = 0;
+		}
+		
+		public int getSpawnCnt()
+		{
+			return m_spawnCnt;
+		}
+		
+		public int getSpawnLimit()
+		{
+			return m_spawnLimit;
+		}
+		
+		public float getSpawnTimeAdd()
+		{
+			return m_spawnTimeAdd;
+		}
+		
+		public float getSpawnTimeBase()
+		{
+			return m_spawnTimeBase;
+		}
+		
+		//パターンを抽選する
+		public MyPtrn lotPtrn()
+		{
+			float sumProb = 0f;
+			for(int i = 0; i < m_ptrnCnt; i++)
+			{
+				sumProb += m_ptrns[i].prob;
+			}
+			float prob = MathUtils.random(0f, sumProb);
+			float prevProb = 0f;
+			float curProb = 0f;
+
+			for(int i = 0; i < m_ptrnCnt - 1; i++)
+			{
+				prevProb = curProb;
+				curProb += m_ptrns[i].prob;
+				if(prevProb <= prob && prob < curProb)
+				{
+					return m_ptrns[i];
+				}
+			}
+
+			return m_ptrns[m_ptrnCnt - 1];
+		}
+		
+		public void setSpawnCnt(int spawnCnt, int spawnLimit)
+		{
+			m_spawnCnt = spawnCnt;
+			m_spawnLimit = spawnLimit;
+		}
+		
+		public void setSpawnTime(float base, float add)
+		{
+			m_spawnTimeBase = base;
+			m_spawnTimeAdd = add;
+		}
+	}
+	
+	class MyPtrn
 	{
 		public int enemy;
 		public int address;
@@ -499,7 +689,7 @@ public class MyLevel
 		}
 	}
 	
-	private class MyLayout
+	class MyLayout
 	{
 		public float angle;
 		public float dist;

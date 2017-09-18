@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.glutils.*;
 
 public class MyPlayer extends JgfChara
-{//
+{
 	static public final int kType_Archer = 1;
 	static public final int kType_Knight = 2;
 	static public final int kType_Mage = 3;
@@ -425,13 +425,11 @@ public class MyPlayer extends JgfChara
 			m_invTimer = 1f;
 			m_stopTimer = 0.1f;
 			setColorImd(Color.RED, 0.2f);
-			m_main.log.print("players[" + m_charaId + "].hp = " + m_hp);
 		}
 		else
 		{
 			m_invTimer = 9999f;
 			setColorImd(Color.RED, 0.2f);
-			m_main.log.print("players[" + m_charaId + "].dead");
 		}
 	}
 
@@ -490,7 +488,7 @@ public class MyPlayer extends JgfChara
 				case kType_Ninja: atlasName = "ninja00walk00.png"; break;
 			}
 		}
-		if(atlasName != m_atlas.getName())
+		if(!atlasName.equals(m_atlas.getName()))
 		{
 			setAtlas(atlasName);
 		}

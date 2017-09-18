@@ -17,12 +17,12 @@ public class MyUi
 	int m_mainState;
 	int m_mainStateStep;
 	float[] m_stateVarsF;
-	Sprite m_btnL;
 	Sprite m_heart;
 	Sprite m_jem;
 	Sprite m_gloves;
 	Sprite m_boots;
 	JgfBtn m_okBtn;
+	JgfBtn[] m_nextBtns;
 	JgfBtn[] m_moveBtns1P;
 	JgfBtn[] m_moveBtns2P;
 	JgfBtn[] m_playerBtns1P;
@@ -91,6 +91,9 @@ public class MyUi
 	
 	private void drawPlayerSel(SpriteBatch batch)
 	{
+		//以下はステージ移動中は描かない
+		if(2 <= m_mainStateStep) return;
+		
 		for(int i = 0; i < PLAYER_BTN_CNTMAX; i++)
 		{
 			if(m_playerSel1P == i)
@@ -116,7 +119,41 @@ public class MyUi
 			}
 			m_playerBtns2P[i].getSprite().draw(batch);
 		}
+		
+		
+		
 		m_okBtn.getSprite().draw(batch);
+		int stgIdx = m_main.level.getStgIdx();
+		if(0 < stgIdx)
+		{
+			m_nextBtns[0].getSprite().draw(batch);
+			if(m_nextBtns[0].isPressed())
+			{
+				m_nextBtns[0].getSprite().setColor(Color.YELLOW);
+				m_nextBtns[0].getSprite().setScale(1.1f);
+			}
+			else
+			{
+				m_nextBtns[0].getSprite().setColor(Color.BLACK);
+				m_nextBtns[0].getSprite().setScale(1f);
+			}
+		}
+		if(stgIdx < MyLevel.STG_CNTMAX - 1)
+		{
+			m_nextBtns[1].getSprite().draw(batch);
+			if(m_nextBtns[1].isPressed())
+			{
+				m_nextBtns[1].getSprite().setColor(Color.YELLOW);
+				m_nextBtns[1].getSprite().setScale(1.1f);
+			}
+			else
+			{
+				m_nextBtns[1].getSprite().setColor(Color.BLACK);
+				m_nextBtns[1].getSprite().setScale(1f);
+			}
+		}
+		//テキストを描く
+		drawTxts(batch);
 	}
 	
 	private void drawReady(SpriteBatch batch)
@@ -137,33 +174,13 @@ public class MyUi
 	
 	private void drawPlayCmn(SpriteBatch batch)
 	{//プレイ中のUIを描く(テキスト以外)
-		if(false)
-		{
-			final float x = 0.5f;
-			final float y = m_main.gameCam.getSize().y / 2f;
-			final float size = 0.35f;
-			m_btnL.setSize(size, size);
-			m_btnL.setColor(Color.WHITE);
-			m_btnL.setPosition(-x, -y);
-			m_btnL.draw(batch);
-			m_btnL.setPosition(x-size, -y);
-			m_btnL.flip(true, false);
-			m_btnL.draw(batch);
-			m_btnL.setPosition(x-size, y-size);
-			m_btnL.flip(false, true);
-			m_btnL.draw(batch);
-			m_btnL.setPosition(-x, y-size);
-			m_btnL.flip(true, false);
-			m_btnL.draw(batch);
-			m_btnL.flip(false, true);
-		}
-		else
+		//if(false)
 		{
 			for(int i = 0; i < 2; i++)
 			{
 				if(m_moveBtns1P[i].isPressed())
 				{
-					m_moveBtns1P[i].getSprite().setColor(Color.RED);
+					m_moveBtns1P[i].getSprite().setColor(Color.YELLOW);
 					m_moveBtns1P[i].getSprite().setScale(1.1f);
 				}
 				else
@@ -174,7 +191,7 @@ public class MyUi
 				m_moveBtns1P[i].getSprite().draw(batch);
 				if(m_moveBtns2P[i].isPressed())
 				{
-					m_moveBtns2P[i].getSprite().setColor(Color.RED);
+					m_moveBtns2P[i].getSprite().setColor(Color.YELLOW);
 					m_moveBtns2P[i].getSprite().setScale(1.1f);
 				}
 				else
@@ -191,7 +208,7 @@ public class MyUi
 			}
 			else if(m_skillBtn1P.isPressed())
 			{
-				m_skillBtn1P.getSprite().setColor(Color.RED);
+				m_skillBtn1P.getSprite().setColor(Color.YELLOW);
 				m_skillBtn1P.getSprite().setScale(1.1f);
 			}
 			else
@@ -207,7 +224,7 @@ public class MyUi
 			}
 			else if(m_skillBtn2P.isPressed())
 			{
-				m_skillBtn2P.getSprite().setColor(Color.RED);
+				m_skillBtn2P.getSprite().setColor(Color.YELLOW);
 				m_skillBtn2P.getSprite().setScale(1.1f);
 			}
 			else
@@ -455,9 +472,7 @@ public class MyUi
 		
 		float size = 0f;
 		
-		Texture tex = m_main.asset.getTex("btn00.png");
-		m_btnL = new Sprite(tex);
-		tex = m_main.asset.getTex("heart00.png");
+		Texture tex = m_main.asset.getTex("heart00.png");
 		m_heart = new Sprite(tex);
 		tex = m_main.asset.getTex("icon00_jem00.png");
 		m_jem = new Sprite(tex);
@@ -466,8 +481,8 @@ public class MyUi
 		tex = m_main.asset.getTex("icon00_boots00.png");
 		m_boots = new Sprite(tex);
 		
-		size = 0.2f;
-		tex = m_main.asset.getTex("ok00.png");
+		size = 0.25f;
+		tex = m_main.asset.getTex("btn01_start00.png");
 		m_okBtn = new JgfBtn();
 		m_okBtn.setSprite(new Sprite(tex));
 		m_okBtn.getSprite().setSize(size, size);
@@ -475,10 +490,26 @@ public class MyUi
 		m_okBtn.getSprite().setColor(Color.BLACK);
 		m_okBtn.getSprite().setPosition(-size/2f, -size/2f);
 		
+		float x = 0.35f;
+		size = 0.15f;
+		tex = m_main.asset.getTex("btn01_next00.png");
+		m_nextBtns = new JgfBtn[2];
+		for(int i = 0; i < 2; i++)
+		{
+			m_nextBtns[i] = new JgfBtn();
+			m_nextBtns[i].setSprite(new Sprite(tex));
+			m_nextBtns[i].getSprite().setSize(size, size);
+			m_nextBtns[i].getSprite().setOrigin(size/2f, size/2f);
+			m_nextBtns[i].getSprite().setColor(Color.BLACK);
+		}
+		m_nextBtns[0].getSprite().setPosition(-x-size/2f, -size/2f);
+		m_nextBtns[0].getSprite().setFlip(true, false);
+		m_nextBtns[1].getSprite().setPosition(+x-size/2f, -size/2f);
+		
 		m_moveBtns1P = new JgfBtn[2];
 		m_moveBtns2P = new JgfBtn[2];
 		size = 0.35f;
-		float x = 0.5f;
+		x = 0.5f;
 		float y = m_main.gameCam.getSize().y / 2f;
 		tex = m_main.asset.getTex("btn00_move00.png");
 		for(int i = 0; i < 2; i++)
@@ -516,6 +547,11 @@ public class MyUi
 		clearTxts();
 	}
 	
+	public void setEnableLevelSelect()
+	{
+		m_mainStateStep--;
+	}
+	
 	public void update()
 	{
 		int mainState = m_main.getState();
@@ -543,6 +579,8 @@ public class MyUi
 	
 	private void updatePlayerSel()
 	{
+		int iTxt = 0;
+		
 		switch(m_mainStateStep)
 		{
 		case 0:
@@ -588,6 +626,15 @@ public class MyUi
 				m_playerBtns2P[i].getSprite().setPosition(x, y);
 				x += size + margin;
 			}
+			//ラウンド数
+			I18NBundle bdl = m_main.asset.getBdl("bdl");
+			int roundMax = m_main.level.getRoundMax();
+			m_txts[iTxt].str = bdl.format("RoundCnt", roundMax);
+			m_txts[iTxt].scale = 1.5f;
+			m_txts[iTxt].pos.x = 0f;
+			m_txts[iTxt].pos.y = -0.2f;
+			iTxt++;
+			m_txtCnt = iTxt;
 			break;
 		case 1:
 			//押されてるボタンのチェック
@@ -605,6 +652,9 @@ public class MyUi
 				}
 			}
 			m_okBtn.update();
+			m_nextBtns[0].update();
+			m_nextBtns[1].update();
+			boolean isChangedStg = false;
 			if(m_okBtn.isPush())
 			{//OKボタンが押された
 				m_main.setState(MyMain.kState_Ready);
@@ -667,6 +717,39 @@ public class MyUi
 				m_skillBtn2P.getSprite().setFlip(false, true);
 				m_skillBtn2P.getSprite().setPosition(-skillSizeX/2f, +skillY-skillSizeY);
 			}
+			else if(m_nextBtns[0].isPush())
+			{
+				if(0 < m_main.level.getStgIdx())
+				{
+					m_mainStateStep++;
+					m_main.level.addStg(-1);
+					isChangedStg = true;
+					m_main.bg.setState(MyBg.kState_MoveL);
+				}
+			}
+			else if(m_nextBtns[1].isPush())
+			{
+				if(m_main.level.getStgIdx() < MyLevel.STG_CNTMAX - 1)
+				{
+					m_mainStateStep++;
+					m_main.level.addStg(+1);
+					isChangedStg = true;
+					m_main.bg.setState(MyBg.kState_MoveR);
+				}
+			}
+			if(isChangedStg)
+			{
+				//ラウンド数
+				iTxt = 0;
+				bdl = m_main.asset.getBdl("bdl");
+				roundMax = m_main.level.getRoundMax();
+				m_txts[iTxt].str = bdl.format("RoundCnt", roundMax);
+				m_txts[iTxt].scale = 1.5f;
+				m_txts[iTxt].pos.x = 0f;
+				m_txts[iTxt].pos.y = -0.2f;
+			}
+			break;
+		case 2:
 			break;
 		}
 		
@@ -680,9 +763,9 @@ public class MyUi
 		case 0:
 			m_mainStateStep++;
 			I18NBundle bdl = m_main.asset.getBdl("bdl");
-			int roundNum = m_main.level.getRoundNum() + 1;
+			int roundNum = m_main.level.getRoundIdx() + 1;
 			int roundMax = m_main.level.getRoundMax();
-			m_txts[iTxt].str = bdl.format("Round", roundNum, roundMax);
+			m_txts[iTxt].str = bdl.format("RoundStart", roundNum, roundMax);
 			m_txts[iTxt].scale = 1.5f;
 			m_txts[iTxt].pos.x = 0f;
 			m_txts[iTxt].pos.y = -0.2f;
@@ -770,13 +853,8 @@ public class MyUi
 		case 0:
 			m_mainStateStep++;
 			I18NBundle bdl = m_main.asset.getBdl("bdl");
-			int roundNum = m_main.level.getRoundNum();
+			int roundNum = m_main.level.getRoundIdx();
 			int roundMax = m_main.level.getRoundMax();
-			m_txts[iTxt].str = bdl.format("Round", roundNum, roundMax);
-			m_txts[iTxt].scale = 1.5f;
-			m_txts[iTxt].pos.x = 0f;
-			m_txts[iTxt].pos.y = -0.15f;
-			iTxt++;
 			m_txts[iTxt].str = bdl.format("RoundCleared");
 			m_txts[iTxt].scale = 1.5f;
 			m_txts[iTxt].pos.x = 0f;
@@ -812,19 +890,17 @@ public class MyUi
 		{
 		case 0:
 			m_mainStateStep++;
+			String time = String.valueOf((int)m_main.level.getPlayingTime());
+			m_main.log.print("time = " + time);
 			I18NBundle bdl = m_main.asset.getBdl("bdl");
-			int roundNum = m_main.level.getRoundNum() + 1;
+			int roundNum = m_main.level.getRoundIdx() + 1;
 			int roundMax = m_main.level.getRoundMax();
-			m_txts[iTxt].str = bdl.format("Round", roundNum, roundMax);
-			m_txts[iTxt].str += String.valueOf((int)m_main.level.getPlayingTime());
-			m_txts[iTxt].str += "s";
+			m_txts[iTxt].str = bdl.format("RoundStart", roundNum, roundMax);
 			m_txts[iTxt].scale = 1.5f;
 			m_txts[iTxt].pos.x = 0f;
 			m_txts[iTxt].pos.y = -0.15f;
 			iTxt++;
 			m_txts[iTxt].str = bdl.format("GameOver");
-			m_txts[iTxt].str += String.valueOf((int)m_main.level.getPlayingTime());
-			m_txts[iTxt].str += "s";
 			m_txts[iTxt].scale = 1.5f;
 			m_txts[iTxt].pos.x = 0f;
 			m_txts[iTxt].pos.y = -0.2f;
