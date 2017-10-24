@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.glutils.*;
 
 public class JgfGame extends Game
 {
-	SpriteBatch batch;
-
 	private MyMain m_main; //MyMainは必ず存在する
 
 	static public MyMain getMain()
@@ -22,8 +20,6 @@ public class JgfGame extends Game
 	{
 		m_main = new MyMain();
 		m_main.init();
-
-		batch = new SpriteBatch();
 	}
 
 	@Override
@@ -61,6 +57,6 @@ public class JgfGame extends Game
 
 	void draw()
 	{
-		m_main.draw(batch);
+		m_main.draw();
 	}
 }

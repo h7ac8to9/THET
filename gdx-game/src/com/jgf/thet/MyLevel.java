@@ -20,6 +20,7 @@ public class MyLevel
 	boolean m_isEndStg; //全てのラウンドが終わったらtrue
 	String m_inTexName;
 	String m_outTexName;
+	String m_selectTexName;
 	String m_bgmName;
 	
 	//----ラウンド毎----
@@ -43,7 +44,7 @@ public class MyLevel
 		setStg(m_stgIdx + add);
 	}
 	
-	private void clear()
+	public void clear()
 	{
 		m_isEndStg = false;
 		for(int i = 0; i < MyMain.PLAYER_CNTMAX; i++)
@@ -113,6 +114,11 @@ public class MyLevel
 	public int getRoundIdx()
 	{
 		return m_roundIdx;
+	}
+	
+	public String getSelectTexName()
+	{
+		return m_selectTexName;
 	}
 	
 	//現在のSquadを取得する.
@@ -208,7 +214,7 @@ public class MyLevel
 			m_lowCaves[i] = spawnProp(MyProp.kType_CaveLow, layout.angle, layout.dist);
 		}
 	}
-	
+
 	public void update()
 	{
 		float deltaTime = Gdx.graphics.getDeltaTime();
@@ -245,6 +251,7 @@ public class MyLevel
 						if(m_squadIdx < getRound().squadCnt - 1)
 						{//現在のスカッドが最終スカッドでなければ
 							m_squadIdx++;
+							m_squadSpawnCnt = 0;
 						}
 					}
 					float base = getSquad().getSpawnTimeBase();
@@ -421,6 +428,9 @@ public class MyLevel
 					case "round":
 						roundCnt++;
 						squadCnt = 0;
+						break;
+					case "select":
+						m_selectTexName = arg0;
 						break;
 					}
 				}

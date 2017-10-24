@@ -39,7 +39,7 @@ public class MyBg
 	
 	
 	
-	public void draw(SpriteBatch batch)
+	public void draw()
 	{
 		/*
 		batch.end();
@@ -65,23 +65,23 @@ public class MyBg
 		
 		for(int i = 0; i < STAR_CNTMAX; i++)
 		{
-			m_stars[i].draw(batch);
+			m_stars[i].draw(m_main.batch);
 		}
 		
 		{
 			TextureRegion region = m_planetOutAtlas.getRegion(m_planetTimer);
 			m_planetOut.setRegion(region);
-			m_planetOut.draw(batch);
+			m_planetOut.draw(m_main.batch);
 		}
 		if(0f < m_planetInAlpha)
 		{
 			m_planetIn.setAlpha(m_planetInAlpha);
-			m_planetIn.draw(batch);
+			m_planetIn.draw(m_main.batch);
 		}
 		
 		for(int i = 0; i < 2; i++)
 		{
-			m_rockets[i].draw(batch);
+			m_rockets[i].draw(m_main.batch);
 		}
 	}
 	
@@ -89,23 +89,17 @@ public class MyBg
 	{
 		m_main = JgfGame.getMain();
 		
-		m_planetSize = 1.07f;
 		m_planetPos = new Vector2();
-		m_planetPos.x = -m_planetSize / 2f;
-		m_planetPos.y = -m_planetSize / 2f;
 		m_planetMove = new Vector2();
-		Texture tex = m_main.asset.getTex("bg01_planet00.png");
+		String texName = m_main.level.getInTexName();
+		Texture tex = m_main.asset.getTex(texName);
 		m_planetIn = new Sprite(tex);
-		m_planetIn.setSize(m_planetSize, m_planetSize);
-		m_planetIn.setPosition(m_planetPos.x, m_planetPos.y);
-		m_planetIn.setOrigin(m_planetSize/2f, m_planetSize/2f);
-		m_planetOutAtlas = m_main.asset.getAtlas("bg00_planet00.png");
+		texName = m_main.level.getSelectTexName();
+		m_planetOutAtlas = m_main.asset.getAtlas(texName);
 		m_planetOut = new Sprite(m_planetOutAtlas.getRegion(0f));
-		m_planetOut.setSize(m_planetSize, m_planetSize);
-		m_planetOut.setPosition(m_planetPos.x, m_planetPos.y);
-		m_planetOut.setOrigin(m_planetSize/2f, m_planetSize/2f);
 		m_planetInAlpha = 0f;
 		m_planetTimer = 0f;
+		setPlanetSize(0.5f);
 		
 		m_rockets = new MyRocket[2];
 		for(int i = 0; i < 2; i++)
@@ -129,6 +123,19 @@ public class MyBg
 			v.rotate(360f / VTX_MAXCNT);
 		}
 		//*/
+	}
+	
+	public void setPlanetSize(float size)
+	{
+		m_planetSize = size;
+		m_planetPos.x = -m_planetSize / 2f;
+		m_planetPos.y = -m_planetSize / 2f;
+		m_planetIn.setSize(m_planetSize, m_planetSize);
+		m_planetIn.setPosition(m_planetPos.x, m_planetPos.y);
+		m_planetIn.setOrigin(m_planetSize/2f, m_planetSize/2f);
+		m_planetOut.setSize(m_planetSize, m_planetSize);
+		m_planetOut.setPosition(m_planetPos.x, m_planetPos.y);
+		m_planetOut.setOrigin(m_planetSize/2f, m_planetSize/2f);
 	}
 	
 	public void setState(int state)
@@ -166,6 +173,7 @@ public class MyBg
 		{
 		case 0:
 			m_stateStep++;
+			setPlanetSize(0.5f);
 			m_planetInAlpha = 0f;
 			break;
 		case 1:
@@ -179,13 +187,38 @@ public class MyBg
 		switch(m_stateStep)
 		{
 		case 0:
-			if(m_stateTimer < 1f)
+			if(m_main.level.getRoundIdx() == 0)
 			{
-				m_planetInAlpha = m_stateTimer;
+				m_stateStep++;
+				String texName = m_main.level.getOutTexName();
+				m_planetOutAtlas = m_main.asset.getAtlas(texName);
+			}
+			else
+			{
+				m_stateStep = 99;
+			}
+			break;
+		case 1:
+			final float firstTime = 0f;
+			final float zoomTime = 1f;
+			final float alphaTime = 1f;
+			float size = 0.5f + (1.07f - 0.5f) * (m_stateTimer - firstTime) / zoomTime;
+			if(m_stateTimer < firstTime)
+			{
+			}
+			else if(m_stateTimer < firstTime + zoomTime)
+			{
+				setPlanetSize(size);
+			}
+			else if(m_stateTimer < firstTime + zoomTime + alphaTime)
+			{
+				//setPlanetSize(size);
+				m_planetInAlpha = m_stateTimer - (firstTime + zoomTime);
 			}
 			else
 			{
 				m_stateStep++;
+				setPlanetSize(1.07f);
 				m_planetInAlpha = 1f;
 			}
 			break;
@@ -221,36 +254,10 @@ public class MyBg
 			{
 				m_stateStep++;
 				m_planetPos.x = -m_planetSize / 2f - 1.5f * lr;
-				int stgIdx = m_main.level.getStgIdx();
-				/*
-				String texName = "";
-				switch(stgIdx)
-				{
-				case 0: texName = "bg01_planet00.png"; break;
-				case 1: texName = "bg01_planet01.png"; break;
-				case 2: texName = "bg01_planet02.png"; break;
-				case 3: texName = "bg01_planet03.png"; break;
-				case 4: texName = "bg01_planet04.png"; break;
-				case 5: texName = "bg01_planet05.png"; break;
-				}
-				/*/
 				String texName = m_main.level.getInTexName();
-				//*/
 				Texture tex = m_main.asset.getTex(texName);
 				m_planetIn.setTexture(tex);
-				/*
-				switch(stgIdx)
-				{
-				case 0: texName = "bg00_planet00.png"; break;
-				case 1: texName = "bg00_planet01.png"; break;
-				case 2: texName = "bg00_planet02.png"; break;
-				case 3: texName = "bg00_planet03.png"; break;
-				case 4: texName = "bg00_planet04.png"; break;
-				case 5: texName = "bg00_planet05.png"; break;
-				}
-				/*/
-				texName = m_main.level.getOutTexName();
-				//*/
+				texName = m_main.level.getSelectTexName();
 				m_planetOutAtlas = m_main.asset.getAtlas(texName);
 				for(int i = 0; i < STAR_CNTMAX; i++)
 				{

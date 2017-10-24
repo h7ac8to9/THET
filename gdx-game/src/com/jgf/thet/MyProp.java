@@ -22,7 +22,7 @@ public class MyProp extends JgfChara
 	}
 
 	@Override
-	public boolean draw(SpriteBatch batch)
+	public boolean draw()
 	{
 		switch(m_main.getState())
 		{
@@ -33,7 +33,7 @@ public class MyProp extends JgfChara
 			return false;
 		}
 		
-		if(!super.draw(batch)) return false;
+		if(!super.draw()) return false;
 		
 		return true;
 	}

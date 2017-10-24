@@ -75,21 +75,21 @@ public class MyUi
 		m_txtCnt = 0;
 	}
 	
-	public void draw(SpriteBatch batch)
+	public void draw()
 	{
 		switch(m_main.getState())
 		{
-		case MyMain.kState_PlayerSel: drawPlayerSel(batch); break;
-		case MyMain.kState_Ready: drawReady(batch); break;
-		case MyMain.kState_Play: drawPlay(batch); break;
-		case MyMain.kState_Interval: drawInterval(batch); break;
-		case MyMain.kState_Result: drawResult(batch); break;
-		case MyMain.kState_GameOver: drawGameOver(batch); break;
-		case MyMain.kState_Shop: drawShop((batch)); break;
+		case MyMain.kState_PlayerSel: drawPlayerSel(); break;
+		case MyMain.kState_Ready: drawReady(); break;
+		case MyMain.kState_Play: drawPlay(); break;
+		case MyMain.kState_Interval: drawInterval(); break;
+		case MyMain.kState_Result: drawResult(); break;
+		case MyMain.kState_GameOver: drawGameOver(); break;
+		case MyMain.kState_Shop: drawShop(); break;
 		}
 	}
 	
-	private void drawPlayerSel(SpriteBatch batch)
+	private void drawPlayerSel()
 	{
 		//以下はステージ移動中は描かない
 		if(2 <= m_mainStateStep) return;
@@ -98,35 +98,35 @@ public class MyUi
 		{
 			if(m_playerSel1P == i)
 			{
-				m_playerBtns1P[i].getSprite().setColor(Color.YELLOW);
+				m_playerBtns1P[i].getSprite().setColor(Color.WHITE);
 				m_playerBtns1P[i].getSprite().setScale(1.4f);
 			}
 			else
 			{
-				m_playerBtns1P[i].getSprite().setColor(Color.WHITE);
+				m_playerBtns1P[i].getSprite().setColor(Color.GRAY);
 				m_playerBtns1P[i].getSprite().setScale(1f);
 			}
-			m_playerBtns1P[i].getSprite().draw(batch);
+			m_playerBtns1P[i].getSprite().draw(m_main.batch);
 			if(m_playerSel2P == i)
 			{
-				m_playerBtns2P[i].getSprite().setColor(Color.YELLOW);
+				m_playerBtns2P[i].getSprite().setColor(Color.WHITE);
 				m_playerBtns2P[i].getSprite().setScale(1.4f);
 			}
 			else
 			{
-				m_playerBtns2P[i].getSprite().setColor(Color.WHITE);
+				m_playerBtns2P[i].getSprite().setColor(Color.GRAY);
 				m_playerBtns2P[i].getSprite().setScale(1f);
 			}
-			m_playerBtns2P[i].getSprite().draw(batch);
+			m_playerBtns2P[i].getSprite().draw(m_main.batch);
 		}
 		
 		
-		
-		m_okBtn.getSprite().draw(batch);
+		m_okBtn.getSprite().setAlpha(0f);
+		m_okBtn.getSprite().draw(m_main.batch);
 		int stgIdx = m_main.level.getStgIdx();
 		if(0 < stgIdx)
 		{
-			m_nextBtns[0].getSprite().draw(batch);
+			m_nextBtns[0].getSprite().draw(m_main.batch);
 			if(m_nextBtns[0].isPressed())
 			{
 				m_nextBtns[0].getSprite().setColor(Color.YELLOW);
@@ -140,7 +140,7 @@ public class MyUi
 		}
 		if(stgIdx < MyLevel.STG_CNTMAX - 1)
 		{
-			m_nextBtns[1].getSprite().draw(batch);
+			m_nextBtns[1].getSprite().draw(m_main.batch);
 			if(m_nextBtns[1].isPressed())
 			{
 				m_nextBtns[1].getSprite().setColor(Color.YELLOW);
@@ -153,26 +153,26 @@ public class MyUi
 			}
 		}
 		//テキストを描く
-		drawTxts(batch);
+		drawTxts();
 	}
 	
-	private void drawReady(SpriteBatch batch)
+	private void drawReady()
 	{
 		//プレイ中のUIも描く
-		drawPlayCmn(batch);
+		drawPlayCmn();
 		//テキストを描く
-		drawTxts(batch);
+		drawTxts();
 	}
 	
-	private void drawPlay(SpriteBatch batch)
+	private void drawPlay()
 	{
 		//プレイ中のUIも描く
-		drawPlayCmn(batch);
+		drawPlayCmn();
 		//テキストを描く
-		drawTxts(batch);
+		drawTxts();
 	}
 	
-	private void drawPlayCmn(SpriteBatch batch)
+	private void drawPlayCmn()
 	{//プレイ中のUIを描く(テキスト以外)
 		//if(false)
 		{
@@ -180,7 +180,7 @@ public class MyUi
 			{
 				if(m_moveBtns1P[i].isPressed())
 				{
-					m_moveBtns1P[i].getSprite().setColor(Color.YELLOW);
+					m_moveBtns1P[i].getSprite().setColor(Color.WHITE);
 					m_moveBtns1P[i].getSprite().setScale(1.1f);
 				}
 				else
@@ -188,10 +188,10 @@ public class MyUi
 					m_moveBtns1P[i].getSprite().setColor(Color.WHITE);
 					m_moveBtns1P[i].getSprite().setScale(1f);
 				}
-				m_moveBtns1P[i].getSprite().draw(batch);
+				m_moveBtns1P[i].getSprite().draw(m_main.batch);
 				if(m_moveBtns2P[i].isPressed())
 				{
-					m_moveBtns2P[i].getSprite().setColor(Color.YELLOW);
+					m_moveBtns2P[i].getSprite().setColor(Color.WHITE);
 					m_moveBtns2P[i].getSprite().setScale(1.1f);
 				}
 				else
@@ -199,7 +199,7 @@ public class MyUi
 					m_moveBtns2P[i].getSprite().setColor(Color.WHITE);
 					m_moveBtns2P[i].getSprite().setScale(1f);
 				}
-				m_moveBtns2P[i].getSprite().draw(batch);
+				m_moveBtns2P[i].getSprite().draw(m_main.batch);
 			}
 			if(m_main.players[0].getSkillCnt() == 0)
 			{
@@ -208,7 +208,7 @@ public class MyUi
 			}
 			else if(m_skillBtn1P.isPressed())
 			{
-				m_skillBtn1P.getSprite().setColor(Color.YELLOW);
+				m_skillBtn1P.getSprite().setColor(Color.WHITE);
 				m_skillBtn1P.getSprite().setScale(1.1f);
 			}
 			else
@@ -216,7 +216,7 @@ public class MyUi
 				m_skillBtn1P.getSprite().setColor(Color.WHITE);
 				m_skillBtn1P.getSprite().setScale(1f);
 			}
-			m_skillBtn1P.getSprite().draw(batch);
+			m_skillBtn1P.getSprite().draw(m_main.batch);
 			if(m_main.players[1].getSkillCnt() == 0)
 			{
 				m_skillBtn2P.getSprite().setColor(Color.DARK_GRAY);
@@ -224,7 +224,7 @@ public class MyUi
 			}
 			else if(m_skillBtn2P.isPressed())
 			{
-				m_skillBtn2P.getSprite().setColor(Color.YELLOW);
+				m_skillBtn2P.getSprite().setColor(Color.WHITE);
 				m_skillBtn2P.getSprite().setScale(1.1f);
 			}
 			else
@@ -232,7 +232,7 @@ public class MyUi
 				m_skillBtn2P.getSprite().setColor(Color.WHITE);
 				m_skillBtn2P.getSprite().setScale(1f);
 			}
-			m_skillBtn2P.getSprite().draw(batch);
+			m_skillBtn2P.getSprite().draw(m_main.batch);
 		}
 		{
 			final float size = 0.05f;
@@ -245,7 +245,7 @@ public class MyUi
 			for(int i = 0; i < hp; i++)
 			{
 				m_heart.setPosition(-size*maxHp/2f+size*i, -0.6f);
-				m_heart.draw(batch);
+				m_heart.draw(m_main.batch);
 			}
 			maxHp = m_main.players[1].getMaxHp();
 			hp = m_main.players[1].getHp();
@@ -253,21 +253,22 @@ public class MyUi
 			for(int i = 0; i < hp; i++)
 			{
 				m_heart.setPosition(+size*maxHp/2f-size*i, +0.6f);
-				m_heart.draw(batch);
+				m_heart.draw(m_main.batch);
 			}
 		}
 		{
 			final float size = 0.09f;
 			m_jem.setSize(size, size);
 			m_jem.setOrigin(size/2f, size/2f);
-			m_jem.setColor(Color.ORANGE);
+			//m_jem.setColor(Color.ORANGE);
 			m_jem.setRotation(0f);
 			m_jem.setPosition(-size/2f, -0.65f-size/2f);
-			m_jem.draw(batch);
+			m_jem.draw(m_main.batch);
 			m_jem.setRotation(180f);
 			m_jem.setPosition(-size/2f, +0.65f-size/2f);
-			m_jem.draw(batch);
+			m_jem.draw(m_main.batch);
 		}
+		if(false)
 		{
 			final float size = 0.09f;
 			m_gloves.setSize(size, size);
@@ -275,41 +276,41 @@ public class MyUi
 			m_gloves.setColor(Color.ORANGE);
 			m_gloves.setRotation(0f);
 			m_gloves.setPosition(-size/2f, -0.65f-size/2f);
-			m_gloves.draw(batch);
+			m_gloves.draw(m_main.batch);
 			m_gloves.setRotation(180f);
 			m_gloves.setPosition(-size/2f, +0.65f-size/2f);
-			m_gloves.draw(batch);
+			m_gloves.draw(m_main.batch);
 		}
 	}
 	
-	private void drawInterval(SpriteBatch batch)
+	private void drawInterval()
 	{
 		//プレイ中のUIも描く
-		drawPlayCmn(batch);
+		drawPlayCmn();
 		//テキストを描く
-		drawTxts(batch);
+		drawTxts();
 	}
 	
-	private void drawResult(SpriteBatch batch)
+	private void drawResult()
 	{
 		//プレイ中のUIも描く
-		drawPlayCmn(batch);
+		drawPlayCmn();
 		//テキストを描く
-		drawTxts(batch);
+		drawTxts();
 	}
 	
-	private void drawGameOver(SpriteBatch batch)
+	private void drawGameOver()
 	{
 		//プレイ中のUIも描く
-		drawPlayCmn(batch);
+		drawPlayCmn();
 		//テキストを描く
-		drawTxts(batch);
+		drawTxts();
 	}
 	
-	private void drawShop(SpriteBatch batch)
+	private void drawShop()
 	{
 		//プレイ中のUIも描く
-		drawPlayCmn(batch);
+		drawPlayCmn();
 		//アイテムのボタンを描く
 		for(int i = 0; i < PLAYER_BTN_CNTMAX; i++)
 		{
@@ -328,7 +329,7 @@ public class MyUi
 				m_playerBtns1P[i].getSprite().setColor(Color.WHITE);
 				m_playerBtns1P[i].getSprite().setScale(1f);
 			}
-			m_playerBtns1P[i].getSprite().draw(batch);
+			m_playerBtns1P[i].getSprite().draw(m_main.batch);
 			if(m_playerSel2P == i)
 			{
 				m_playerBtns2P[i].getSprite().setColor(Color.YELLOW);
@@ -344,9 +345,10 @@ public class MyUi
 				m_playerBtns2P[i].getSprite().setColor(Color.WHITE);
 				m_playerBtns2P[i].getSprite().setScale(1f);
 			}
-			m_playerBtns2P[i].getSprite().draw(batch);
+			m_playerBtns2P[i].getSprite().draw(m_main.batch);
 		}
-		m_okBtn.getSprite().draw(batch);
+		m_okBtn.getSprite().setAlpha(1f);
+		m_okBtn.getSprite().draw(m_main.batch);
 		//アイテムのジェムを描く
 		final float size = 0.13f;
 		final float margin = 0.07f;
@@ -357,41 +359,41 @@ public class MyUi
 		m_jem.setColor(Color.ORANGE);
 		m_jem.setRotation(0f);
 		m_jem.setPosition(-size*1.5f-margin*1.5f-jemSize/2f, -posY-jemSize);
-		m_jem.draw(batch);
+		m_jem.draw(m_main.batch);
 		m_jem.setPosition(-size*0.5f-margin*0.5f-jemSize/2f, -posY-jemSize);
-		m_jem.draw(batch);
+		m_jem.draw(m_main.batch);
 		m_jem.setPosition(+size*0.5f+margin*0.5f-jemSize/2f, -posY-jemSize);
-		m_jem.draw(batch);
+		m_jem.draw(m_main.batch);
 		m_jem.setPosition(+size*1.5f+margin*1.5f-jemSize/2f, -posY-jemSize);
-		m_jem.draw(batch);
+		m_jem.draw(m_main.batch);
 		m_jem.setRotation(180f);
 		m_jem.setPosition(-size*1.5f-margin*1.5f-jemSize/2f, +posY);
-		m_jem.draw(batch);
+		m_jem.draw(m_main.batch);
 		m_jem.setPosition(-size*0.5f-margin*0.5f-jemSize/2f, +posY);
-		m_jem.draw(batch);
+		m_jem.draw(m_main.batch);
 		m_jem.setPosition(+size*0.5f+margin*0.5f-jemSize/2f, +posY);
-		m_jem.draw(batch);
+		m_jem.draw(m_main.batch);
 		m_jem.setPosition(+size*1.5f+margin*1.5f-jemSize/2f, +posY);
-		m_jem.draw(batch);
+		m_jem.draw(m_main.batch);
 		//テキストを描く
-		drawTxts(batch);
+		drawTxts();
 	}
 	
-	private void drawTxts(SpriteBatch batch)
+	private void drawTxts()
 	{
 		if(m_txtCnt <= 0) return;
 
 		//現在のMatrixをとっておく
-		Matrix4 matProjPrev = batch.getProjectionMatrix().cpy();
-		Matrix4 matTransPrev = batch.getTransformMatrix().cpy();
+		Matrix4 matProjPrev = m_main.batch.getProjectionMatrix().cpy();
+		Matrix4 matTransPrev = m_main.batch.getTransformMatrix().cpy();
 		
 		//Matrixを一時的に変える
 		Matrix4 matProj = new Matrix4();
 		matProj.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		batch.setProjectionMatrix(matProj);
+		m_main.batch.setProjectionMatrix(matProj);
 		Vector2 screen;
 		Matrix4 matTrans = new Matrix4();
-		BitmapFont font = m_main.log.getFont();
+		BitmapFont font = m_main.dbg.getFont();
 		
 		for(int i = 0; i < m_txtCnt; i++)
 		{
@@ -408,8 +410,8 @@ public class MyUi
 				screen.y -= bnds.height / 2; //いらないかも
 				matTrans.idt();
 				matTrans.trn(screen.x, screen.y, 0f);
-				batch.setTransformMatrix(matTrans);
-				font.draw(batch, m_txts[i].str, 0f, 0f);
+				m_main.batch.setTransformMatrix(matTrans);
+				font.draw(m_main.batch, m_txts[i].str, 0f, 0f);
 			}
 			
 			if(type == MyTxt.kType_1P2P || type == MyTxt.kType_2P)
@@ -420,14 +422,14 @@ public class MyUi
 				matTrans.idt();
 				matTrans.rotate(new Vector3(0f, 0f, 1f), 180f);
 				matTrans.trn(screen.x, screen.y, 0f);
-				batch.setTransformMatrix(matTrans);
-				font.draw(batch, m_txts[i].str, 0f, 0f);
+				m_main.batch.setTransformMatrix(matTrans);
+				font.draw(m_main.batch, m_txts[i].str, 0f, 0f);
 			}
 		}
 
 		//Matrixを元に戻す
-		batch.setTransformMatrix(matTransPrev);
-		batch.setProjectionMatrix(matProjPrev);
+		m_main.batch.setTransformMatrix(matTransPrev);
+		m_main.batch.setProjectionMatrix(matProjPrev);
 	}
 	
 	public JgfBtn getMoveBtn(int playerIdx, int lr)
@@ -474,7 +476,7 @@ public class MyUi
 		
 		Texture tex = m_main.asset.getTex("heart00.png");
 		m_heart = new Sprite(tex);
-		tex = m_main.asset.getTex("icon00_jem00.png");
+		tex = m_main.asset.getTex("icon00_jem01.png");
 		m_jem = new Sprite(tex);
 		tex = m_main.asset.getTex("icon00_gloves00.png");
 		m_gloves = new Sprite(tex);
@@ -508,10 +510,10 @@ public class MyUi
 		
 		m_moveBtns1P = new JgfBtn[2];
 		m_moveBtns2P = new JgfBtn[2];
-		size = 0.35f;
+		size = 0.25f;
 		x = 0.5f;
 		float y = m_main.gameCam.getSize().y / 2f;
-		tex = m_main.asset.getTex("btn00_move00.png");
+		tex = m_main.asset.getTex("btn00_move01.png");
 		for(int i = 0; i < 2; i++)
 		{
 			m_moveBtns1P[i] = new JgfBtn();
@@ -588,27 +590,27 @@ public class MyUi
 			Texture tex = m_main.asset.getTex("archer01.png");
 			m_playerBtns1P[0].setSprite(new Sprite(tex));
 			m_playerBtns2P[0].setSprite(new Sprite(tex));
-			tex = m_main.asset.getTex("knight01.png");
+			//tex = m_main.asset.getTex("knight01.png");
 			m_playerBtns1P[1].setSprite(new Sprite(tex));
 			m_playerBtns2P[1].setSprite(new Sprite(tex));
-			tex = m_main.asset.getTex("mage01.png");
+			//tex = m_main.asset.getTex("mage01.png");
 			m_playerBtns1P[2].setSprite(new Sprite(tex));
 			m_playerBtns2P[2].setSprite(new Sprite(tex));
-			tex = m_main.asset.getTex("ninja01.png");
+			//tex = m_main.asset.getTex("ninja01.png");
 			m_playerBtns1P[3].setSprite(new Sprite(tex));
 			m_playerBtns2P[3].setSprite(new Sprite(tex));
 			m_playerSel1P = 0;
 			m_playerSel2P = 0;
-			final float size = 0.13f;
-			final float margin = 0.07f;
+			final float size = 0.15f;
+			final float margin = 0.05f;
 			final float posY = 0.7f;
 			//1Pボタンの初期化
 			float x = -(size * 2f + margin * 1.5f);
 			float y = -posY;
 			for(int i = 0; i < PLAYER_BTN_CNTMAX; i++)
 			{
-				m_playerBtns1P[i].getSprite().setOrigin(size/2f, size/2f);
-				m_playerBtns1P[i].getSprite().setSize(size, size);
+				m_playerBtns1P[i].getSprite().setOrigin(size/2f, size);
+				m_playerBtns1P[i].getSprite().setSize(size, size*2f);
 				m_playerBtns1P[i].getSprite().setColor(Color.WHITE);
 				m_playerBtns1P[i].getSprite().setRotation(0f);
 				m_playerBtns1P[i].getSprite().setPosition(x, y);
@@ -616,11 +618,11 @@ public class MyUi
 			}
 			//2Pボタンの初期化
 			x = -(size * 2f + margin * 1.5f);
-			y = posY - size;
+			y = posY - size * 2f;
 			for(int i = PLAYER_BTN_CNTMAX-1; 0 <= i; i--)
 			{
-				m_playerBtns2P[i].getSprite().setOrigin(size/2f, size/2f);
-				m_playerBtns2P[i].getSprite().setSize(size, size);
+				m_playerBtns2P[i].getSprite().setOrigin(size/2f, size);
+				m_playerBtns2P[i].getSprite().setSize(size, size*2f);
 				m_playerBtns2P[i].getSprite().setColor(Color.WHITE);
 				m_playerBtns2P[i].getSprite().setRotation(180f);
 				m_playerBtns2P[i].getSprite().setPosition(x, y);
@@ -631,8 +633,9 @@ public class MyUi
 			int roundMax = m_main.level.getRoundMax();
 			m_txts[iTxt].str = bdl.format("RoundCnt", roundMax);
 			m_txts[iTxt].scale = 1.5f;
+			m_txts[iTxt].color = Color.WHITE;
 			m_txts[iTxt].pos.x = 0f;
-			m_txts[iTxt].pos.y = -0.2f;
+			m_txts[iTxt].pos.y = -0.25f;
 			iTxt++;
 			m_txtCnt = iTxt;
 			break;
@@ -745,8 +748,9 @@ public class MyUi
 				roundMax = m_main.level.getRoundMax();
 				m_txts[iTxt].str = bdl.format("RoundCnt", roundMax);
 				m_txts[iTxt].scale = 1.5f;
+				m_txts[iTxt].color = Color.WHITE;
 				m_txts[iTxt].pos.x = 0f;
-				m_txts[iTxt].pos.y = -0.2f;
+				m_txts[iTxt].pos.y = -0.25f;
 			}
 			break;
 		case 2:
@@ -808,13 +812,13 @@ public class MyUi
 			float skillY = -m_main.gameCam.getSize().y / 2f + 0.075f;
 			m_txts[iTxt].type = MyTxt.kType_1P;
 			m_txts[iTxt].scale = 1.0f;
-			m_txts[iTxt].pos.x = 0.1f;
+			m_txts[iTxt].pos.x = 0.0f;
 			m_txts[iTxt].pos.y = skillY;
 			m_txts[iTxt].color = Color.WHITE;
 			iTxt++;
 			m_txts[iTxt].type = MyTxt.kType_2P;
 			m_txts[iTxt].scale = 1.0f;
-			m_txts[iTxt].pos.x = 0.1f;
+			m_txts[iTxt].pos.x = 0.0f;
 			m_txts[iTxt].pos.y = skillY;
 			m_txts[iTxt].color = Color.WHITE;
 			iTxt++;
@@ -891,7 +895,7 @@ public class MyUi
 		case 0:
 			m_mainStateStep++;
 			String time = String.valueOf((int)m_main.level.getPlayingTime());
-			m_main.log.print("time = " + time);
+			m_main.dbg.print("time = " + time);
 			I18NBundle bdl = m_main.asset.getBdl("bdl");
 			int roundNum = m_main.level.getRoundIdx() + 1;
 			int roundMax = m_main.level.getRoundMax();
@@ -1135,33 +1139,36 @@ public class MyUi
 		}
 	}
 	
-	private class MyTxt
+	
+}
+
+class MyTxt
+{
+	static public final int kType_1P2P = 0;
+	static public final int kType_1P = 1;
+	static public final int kType_2P = 2;
+
+	public int type;
+	public Color color;
+	public float scale;
+	public String str;
+	public Vector2 pos;
+
+	public void clear()
 	{
-		static public final int kType_1P2P = 0;
-		static public final int kType_1P = 1;
-		static public final int kType_2P = 2;
-		
-		public int type;
-		public Color color;
-		public float scale;
-		public String str;
-		public Vector2 pos;
+		type = kType_1P2P;
+		color = Color.BLACK;
+		scale = 1f;
+		str = "";
+		pos.x = 0f;
+		pos.y = 0f;
+	}
 
-		public void clear()
-		{
-			type = kType_1P2P;
-			color = Color.BLACK;
-			scale = 1f;
-			str = "";
-			pos.x = 0f;
-			pos.y = 0f;
-		}
-
-		public MyTxt()
-		{
-			color = new Color();
-			pos = new Vector2();
-			clear();
-		}
+	public MyTxt()
+	{
+		color = new Color();
+		pos = new Vector2();
+		clear();
 	}
 }
+

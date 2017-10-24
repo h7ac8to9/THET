@@ -35,9 +35,9 @@ public class MyEnemy extends JgfChara
 	}
 	
 	@Override
-	public boolean draw(SpriteBatch batch)
+	public boolean draw()
 	{
-		if(!super.draw(batch)) return false;
+		if(!super.draw()) return false;
 		
 		return true;
 	}
@@ -113,7 +113,7 @@ public class MyEnemy extends JgfChara
 					Vector2 dir = getUpDir().rotate(360f / (float)bulletCnt * (float)i);
 					Vector2 linVel = JgfUtil.mul(dir, 0.3f);
 					m_main.bullets[b].setLinVel(linVel);
-					m_main.log.print("bullet"+b);
+					m_main.dbg.print("bullet"+b);
 				}
 				break;
 			}

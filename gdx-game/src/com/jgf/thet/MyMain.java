@@ -32,8 +32,6 @@ public class MyMain extends JgfMain
 	static public final int BULLET_ID_RANGE = 2000;
 	static public final int PROP_ID_RANGE = 3000;
 	
-	public JgfLog log;
-	
 	private int m_state;
 	public int stateStep;
 	public float stateTimer;
@@ -95,36 +93,36 @@ public class MyMain extends JgfMain
 		return -1;
 	}
 	
-	public void draw(SpriteBatch batch)
+	public void draw()
 	{
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		gameCam.apply(batch);
 		batch.begin();
 		
-		bg.draw(batch);
+		bg.draw();
 		
 		for(int i = 0; i < PROP_CNTMAX; i++)
 		{
-			props[i].draw(batch);
+			props[i].draw();
 		}
 		for(int i = 0; i < PLAYER_CNTMAX; i++)
 		{
-			players[i].draw(batch);
+			players[i].draw();
 		}
 		for(int i = 0; i < ENEMY_CNTMAX; i++)
 		{
-			enemies[i].draw(batch);
+			enemies[i].draw();
 		}
 		for(int i = 0; i < BULLET_CNTMAX; i++)
 		{
-			bullets[i].draw(batch);
+			bullets[i].draw();
 		}
 		
-		ui.draw(batch);
+		ui.draw();
 		
 		uiCam.apply(batch);
-		log.draw(batch);
+		dbg.draw();
 		batch.end();
 	}
 	
@@ -134,7 +132,8 @@ public class MyMain extends JgfMain
 		
 		asset.load();
 		
-		log = new JgfLog();
+		dbg = new MyDbg();
+		dbg.init();
 		
 		ui = new MyUi();
 		ui.setup();
@@ -158,8 +157,9 @@ public class MyMain extends JgfMain
 		{
 			props[i] = new MyProp(i + MyMain.PROP_ID_RANGE);
 		}
-		bg = new MyBg();
 		level = new MyLevel();
+		level.setStg(0);
+		bg = new MyBg();
 		setState(kState_PlayerSel);
 		
 		//テスト
@@ -185,7 +185,8 @@ public class MyMain extends JgfMain
 			m_music = asset.getMsc("BGM068-090923-yorutokoorinomura-mp3.mp3");
 			m_music.play();
 			m_music.setLooping(true);
-			level.setStg(0);
+			level.clear();
+			level.setRound(0);
 			break;
 		case kState_Ready:
 			m_music.stop();
@@ -205,9 +206,9 @@ public class MyMain extends JgfMain
 		}
 	}
 	
-	public void update()
+	public boolean update()
 	{
-		super.update();
+		if(!super.update()) return false;
 		
 		stateTimer += Gdx.graphics.getDeltaTime();
 		switch(m_state)
@@ -222,6 +223,7 @@ public class MyMain extends JgfMain
 		}
 		bg.update();
 		ui.update();
+		return true;
 	}
 	
 	private void updatePlayerSel()
@@ -244,7 +246,7 @@ public class MyMain extends JgfMain
 			stateStep++;
 			break;
 		case 1:
-			if(3f < stateTimer)
+			if(2f < stateTimer)
 			{
 				setState(kState_Play);
 				return;

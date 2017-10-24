@@ -90,9 +90,9 @@ public class MyPlayer extends JgfChara
 	}
 
 	@Override
-	public boolean draw(SpriteBatch batch)
+	public boolean draw()
 	{
-		if(!super.draw(batch)) return false;
+		if(!super.draw()) return false;
 
 		/*
 		 batch.end();
@@ -533,7 +533,7 @@ public class MyPlayer extends JgfChara
 		m_actTimer = 0f;
 		m_killCnt = 0;
 		m_gemCnt = 0;
-		m_skillCnt = 0;
+		m_skillCnt = 5;
 		m_bootsCnt = 1;
 		m_glovesCnt = 1;
 		updateShootTime();

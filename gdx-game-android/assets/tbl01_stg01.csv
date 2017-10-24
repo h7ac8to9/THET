@@ -1,5 +1,6 @@
 cmd,arg0,arg1,arg2,arg3
 ,,,,
+select,bg00_planet01.png,,,
 out,bg00_planet01.png,,,
 in,bg01_planet01.png,,,
 bgm,music01.mp3,,,
@@ -43,7 +44,7 @@ low,2,,,
 prices,6,3,3,1
 squad,4,2,3,0
 ptrn,zombie,low,1,
-squad,2,4,3,0
+squad,4,3,3,0
 ptrn,bat,high,1,
 ptrn,zombie,low,0.2
 

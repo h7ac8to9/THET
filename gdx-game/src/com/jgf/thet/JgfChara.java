@@ -52,7 +52,7 @@ public class JgfChara
 		//ここでオブジェクト解放とかする
 	}
 	
-	public boolean draw(SpriteBatch batch)
+	public boolean draw()
 	{
 		if(!m_isAlive) return false;
 		
@@ -60,7 +60,7 @@ public class JgfChara
 		m_sprite.setRegion(region);
 		m_sprite.setFlip(m_flipX, m_flipY);
 	//	m_sprite.setColor(m_color);
-		m_sprite.draw(batch);
+		m_sprite.draw(m_main.batch);
 		
 		/*
 		 batch.end();
